@@ -1,0 +1,493 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Jeon, an engineer</title>
+  <meta name="author" content="Seokseong Jeon">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="Jeon, an engineer"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link rel="shortcut icon" href="/favicon.png">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <!--[if lt IE 9]><script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script><![endif]-->
+  
+
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Jeon, an engineer</a></h1>
+  <h2><a href="/"></a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-drag-sorting-ant-design-table-with-dnd-kit" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2021-07-15T15:00:00.000Z"><a href="/2021/07/16/drag-sorting-ant-design-table-with-dnd-kit/">2021-07-16</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2021/07/16/drag-sorting-ant-design-table-with-dnd-kit/">Drag sorting Ant Design Table with dnd kit</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <!-- toc -->
+
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#prepare-dummy-data">Prepare dummy data</a></li>
+<li><a href="#define-a-state-variable-for-drag-overlay">Define a state variable for drag overlay</a></li>
+<li><a href="#convert-table-into-sortable-preset-of-dnd-kit">Convert <code>Table</code> into sortable preset of dnd kit</a></li>
+<li><a href="#draggablewrapper">DraggableWrapper</a></li>
+<li><a href="#draggablerow">DraggableRow</a></li>
+<li><a href="#handledragstart">handleDragStart</a></li>
+<li><a href="#handledragend">handleDragEnd</a></li>
+</ul>
+<!-- tocstop -->
+
+<h2><span id="introduction">Introduction</span></h2><p>I was trying to implement <a target="_blank" rel="noopener" href="https://ant.design/components/table/#components-table-demo-drag-sorting-handler">Drag sorting with handler</a> for Ant Design Table. I found that <a target="_blank" rel="noopener" href="https://github.com/clauderic/react-sortable-hoc">react-sortable-hoc</a> is not going to be enhancement further and the author encourages to use <a target="_blank" rel="noopener" href="https://github.com/clauderic/dnd-kit">dnd kit</a>. This article summarizes what I did to implement  it with dnd kit.</p>
+<h2><span id="prepare-dummy-data">Prepare dummy data</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">function App() &#123;</span><br><span class="line">  const columns = [</span><br><span class="line">    &#123;</span><br><span class="line">      key: &quot;dragHandle&quot;, dataIndex: &quot;dragHandle&quot;, title: &quot;Drag&quot;,</span><br><span class="line">      width: 30,</span><br><span class="line">      render: () =&gt; &lt;MenuOutlined /&gt;,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      key: &quot;key&quot;, dataIndex: &quot;key&quot;, title: &quot;Key&quot;,</span><br><span class="line">    &#125;,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  const dataSourceRaw = new Array(5).fill(&#123;&#125;).map((item, index) =&gt; (&#123;</span><br><span class="line">    // Shall be truthy to be draggable. I don&#x27;t know why.</span><br><span class="line">    key: index + 1,</span><br><span class="line">  &#125;));</span><br><span class="line">  const [dataSource, setDataSource] = useState(dataSourceRaw);</span><br><span class="line"></span><br><span class="line">  return (</span><br><span class="line">    &lt;Table</span><br><span class="line">      columns=&#123;columns&#125;</span><br><span class="line">      dataSource=&#123;dataSource&#125;</span><br><span class="line">    /&gt;</span><br><span class="line">  );</span><br></pre></td></tr></table></figure>
+
+<p>The important thing here is that the <span style="background-color: #ff0;"><strong>key used to identify an item must be truthy value.</strong></span> I struggled with a situation that the first item is not draggable. After some minutes of debugging, I found that if the key is falsy value, it is not draggable. But I couldn’t find the root cause for this.</p>
+<h2><span id="define-a-state-variable-for-drag-overlay">Define a state variable for drag overlay</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// ID to render overlay.</span><br><span class="line">const [activeId, setActiveId] = useState(null);</span><br></pre></td></tr></table></figure>
+
+<p><code>activeId</code> will be used for determining whether to render drag overlay or not.</p>
+<h2><span id="convert-table-into-sortable-preset-of-dnd-kit">Convert <code>Table</code> into sortable preset of dnd kit</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">const sensors = useSensors(</span><br><span class="line">  useSensor(PointerSensor),</span><br><span class="line">  useSensor(KeyboardSensor, &#123;</span><br><span class="line">    coordinateGetter: sortableKeyboardCoordinates,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">return (</span><br><span class="line">  &lt;DndContext</span><br><span class="line">    sensors=&#123;sensors&#125;</span><br><span class="line">    collisionDetection=&#123;closestCenter&#125;</span><br><span class="line">    onDragEnd=&#123;handleDragEnd&#125;</span><br><span class="line">  &gt;</span><br><span class="line">    &lt;Table</span><br><span class="line">      columns=&#123;columns&#125;</span><br><span class="line">      dataSource=&#123;dataSource&#125;</span><br><span class="line">      components=&#123;&#123;</span><br><span class="line">        body: &#123;</span><br><span class="line">          wrapper: DraggableWrapper,</span><br><span class="line">          row: DraggableRow,</span><br><span class="line">        &#125;,</span><br><span class="line">      &#125;&#125;</span><br><span class="line">    /&gt;</span><br><span class="line">    &#123;/* Render overlay component. */&#125;</span><br><span class="line">    &lt;DragOverlay&gt;&#123;activeId ? activeId : null&#125;&lt;/DragOverlay&gt;</span><br><span class="line">  &lt;/DndContext&gt;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>According to <a target="_blank" rel="noopener" href="https://docs.dndkit.com/presets/sortable#single-container">sortable single container</a>, enclose <code>Table</code> in <code>DndContext</code>, wrap body (<code>tbody</code>) with <code>SortableContext</code> and implement <code>useSortable</code> in row (<code>tr</code>). In this example, <code>DraggableWrapper</code> implements <code>SortableContext</code> and <code>DraggableRow</code> implements <code>tr</code> with <code>useSortrable</code>.</p>
+<p><code>DragOverlay</code> is rendered only when <code>activeId</code> has a valid ID value.</p>
+<h2><span id="draggablewrapper">DraggableWrapper</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">function DraggableWrapper(props: any) &#123;</span><br><span class="line">  const &#123; children, ...restProps &#125; = props;</span><br><span class="line">  return (</span><br><span class="line">    &lt;SortableContext</span><br><span class="line">      // `children[1]` is `dataSource`.</span><br><span class="line">      // This and `id` list of `useSortable` shall be the same.</span><br><span class="line">      // Falsy value shall be avoided. I don&#x27;t know why.</span><br><span class="line">      items=&#123;children[1].map((child: any) =&gt; child.key)&#125;</span><br><span class="line">      strategy=&#123;verticalListSortingStrategy&#125;</span><br><span class="line">      &#123;...restProps&#125;</span><br><span class="line">    &gt;</span><br><span class="line">      &lt;tbody &#123;...restProps&#125;&gt;</span><br><span class="line">        &#123;</span><br><span class="line">          // This invokes `Table.components.body.row` for each element of `children`.</span><br><span class="line">          children</span><br><span class="line">        &#125;</span><br><span class="line">      &lt;/tbody&gt;</span><br><span class="line">    &lt;/SortableContext&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>DraggableWrapper</code> implements <code>SortableContext</code>. <code>items</code> shall be a list of keys to identify items, not items themselves. Inside <code>tbody</code>, <code>children</code> is a list of rows and each item will invoke <code>Table.components.body.row</code>, which is <code>DraggableRow</code>.</p>
+<h2><span id="draggablerow">DraggableRow</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">function DraggableRow(props: any) &#123;</span><br><span class="line">  const &#123; attributes, listeners, setNodeRef &#125; = useSortable(&#123;</span><br><span class="line">    // `props.children[1].props.record` is a record of `dataSource`.</span><br><span class="line">    id: props.children[1].props.record.key,</span><br><span class="line">  &#125;);</span><br><span class="line">  const &#123; children, ...restProps &#125; = props;</span><br><span class="line">  return (</span><br><span class="line">    &lt;tr ref=&#123;setNodeRef&#125; &#123;...attributes&#125; &#123;...restProps&#125;&gt;</span><br><span class="line">      &#123;</span><br><span class="line">        children.map((child: any) =&gt; &#123;</span><br><span class="line">          const &#123; children, key, ...restProps &#125; = child;</span><br><span class="line">          return key === &#x27;dragHandle&#x27; ? (</span><br><span class="line">            &lt;td &#123;...listeners&#125; &#123;...restProps&#125;&gt;</span><br><span class="line">              &#123;child&#125;</span><br><span class="line">            &lt;/td&gt;</span><br><span class="line">          ) : (</span><br><span class="line">            &lt;td &#123;...restProps&#125;&gt;</span><br><span class="line">              &#123;child&#125;</span><br><span class="line">            &lt;/td&gt;</span><br><span class="line">          )</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &lt;/tr&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>DraggableRow</code> implements <code>tr</code> with <code>useSortable</code>.  We want to make a row draggable, so assign <code>setNodRef</code> to <code>tr</code>. And we want to enable dragging only when a user grabs a drag handle, so assign <code>listeners</code> to <code>td</code> containing a drag handle.</p>
+<h2><span id="handledragstart">handleDragStart</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">function handleDragStart(event: any) &#123;</span><br><span class="line">  const &#123; active &#125; = event;</span><br><span class="line">  setActiveId(active.id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2><span id="handledragend">handleDragEnd</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">function handleDragEnd(event: any) &#123;</span><br><span class="line">  const &#123; active, over &#125; = event;</span><br><span class="line">  if (active.id !== over.id) &#123;</span><br><span class="line">    setDataSource((items) =&gt; &#123;</span><br><span class="line">      // In this example, find an item, where `item.key` === `useSortable.id`.</span><br><span class="line">      const oldIndex = items.findIndex((item) =&gt; item.key === active.id);</span><br><span class="line">      const newIndex = items.findIndex((item) =&gt; item.key === over.id);</span><br><span class="line">      return arrayMove(items, oldIndex, newIndex);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  // Stop overlay.</span><br><span class="line">  setActiveId(null);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>handleDragEnd</code> performs swapping two items. Here, to find indexes of two items in data source, we need to compare <code>key</code> of an item and <code>id</code> of <code>useSortable</code>. </p>
+<p>You can find demo <a target="_blank" rel="noopener" href="https://gsongsong.github.io/antd-table-dnd-sortable">here</a>.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article id="post-finding-the-number-of-edges-of-a-document" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2021-06-02T15:00:00.000Z"><a href="/2021/06/03/finding-the-number-of-edges-of-a-document/">2021-06-03</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2021/06/03/finding-the-number-of-edges-of-a-document/">Finding the number of edges of a document</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <h2><span id="query">Query</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FOR d, e IN ANY|INBOUND|OUTBOUND documentId edgeCollectionName</span><br><span class="line">  COLLECT AGGREGATE numEdges = LENGTH(1)</span><br><span class="line">  RETURN numEdges</span><br></pre></td></tr></table></figure>
+
+<h2><span id="application-finding-a-document-with-no-edge">Application: Finding a document with no edge</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">FOR doc IN collectionName</span><br><span class="line">  let numEdges = (</span><br><span class="line">    FOR d, e IN ANY|INBOUND|OUTBOUND doc._id edgeCollectionName</span><br><span class="line">      COLLECT AGGREGATE numEdges = LENGTH(1)</span><br><span class="line">      RETURN numEdges</span><br><span class="line">  )[0]</span><br><span class="line">  FILTER numEdges == 0</span><br><span class="line">  RETURN doc</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article id="post-finding-an-item-in-an-array-with-partial-match" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2021-05-07T15:00:00.000Z"><a href="/2021/05/08/finding-an-item-in-an-array-with-partial-match/">2021-05-08</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2021/05/08/finding-an-item-in-an-array-with-partial-match/">Finding an item in an array with partial match</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <h2><span id="query">Query</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LET needle = &quot;eedl&quot;</span><br><span class="line">LET haystack = [&quot;needle&quot;, &quot;in&quot;, &quot;a&quot;, &quot;haystack&quot;]</span><br><span class="line">RETURN haystack[** FILTER CONTAINS(CURRENT, needle)]</span><br><span class="line">// Output: [&quot;needle&quot;]</span><br></pre></td></tr></table></figure>
+
+<h2><span id="variant-case-insensitive">Variant: Case-insensitive</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LET needle = &quot;EEDL&quot;</span><br><span class="line">LET haystack = [&quot;needle&quot;, &quot;in&quot;, &quot;a&quot;, &quot;haystack&quot;]</span><br><span class="line">RETURN haystack[** FILTER CONTAINS(LOWER(CURRENT), LOWER(needle))]</span><br><span class="line">// Output: [&quot;needle&quot;]</span><br></pre></td></tr></table></figure>
+
+<h2><span id="references">References</span></h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.arangodb.com/docs/stable/aql/advanced-array-operators.html#inline-filter">Array operators - Inline filter</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.arangodb.com/docs/stable/aql/functions-string.html#contains">String functions - CONTAINS()</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.arangodb.com/docs/stable/aql/functions-string.html#lower">String functions - LOWER()</a></li>
+</ol>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article id="post-quick-start-on-antlr4-in-rust-part3" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-06-09T15:00:00.000Z"><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3/">2020-06-10</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3/">Quick start on ANTLR4 in Rust - part3</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p><em>This is my note in adopting and learning ANTLR4Rust</em></p>
+<p><strong>Series</strong></p>
+<ul>
+<li><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1">Quick Start on ANTLR4 in Rust — Part1</a></li>
+<li><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2">Quick Start on ANTLR4 in Rust — Part2</a></li>
+<li>Quick Start on ANTLR4 in Rust — Part3 (This article)</li>
+</ul>
+<hr>
+<p>In the previous article, we implemented a parser with internal state variables. However, if a grammar is huge, it is practically impossible to manage a huge number of state variables. Alternatively, a visitor-like approach can be used.</p>
+<p>In an exit method of the root rule in the Listener, we can grab the current context and its children and call custom parser methods:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">hdr</span></span>(&amp;<span class="keyword">self</span>, ctx: &amp;HdrContextAll) -&gt; Row &#123;</span><br><span class="line">        <span class="keyword">let</span> row_ctx = ctx.row().unwrap();</span><br><span class="line">        <span class="keyword">self</span>.row(&amp;row_ctx)</span><br><span class="line">    &#125;    <span class="function"><span class="keyword">fn</span> <span class="title">row</span></span>(&amp;<span class="keyword">self</span>, ctx: &amp;RowContextAll) -&gt; Row &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut</span> row = Row::new();</span><br><span class="line">        <span class="keyword">let</span> field_ctx_list = ctx.field_all();</span><br><span class="line">        <span class="keyword">for</span> (_i, field_ctx) <span class="keyword">in</span> field_ctx_list.iter().enumerate() &#123;</span><br><span class="line">            <span class="keyword">let</span> field = <span class="keyword">self</span>.field(&amp;field_ctx);</span><br><span class="line">            row.push(field);</span><br><span class="line">        &#125;</span><br><span class="line">        row</span><br><span class="line">    &#125;    <span class="function"><span class="keyword">fn</span> <span class="title">field</span></span>(&amp;<span class="keyword">self</span>, ctx: &amp;FieldContextAll) -&gt; <span class="built_in">String</span> &#123;</span><br><span class="line">        ctx.get_text()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> CSVListener <span class="keyword">for</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;CsvFileContext) &#123;</span><br><span class="line">        <span class="keyword">let</span> hdr_ctx = ctx.hdr().unwrap();</span><br><span class="line">        <span class="keyword">let</span> header = <span class="keyword">self</span>.hdr(&amp;hdr_ctx);</span><br><span class="line">        <span class="keyword">self</span>.csv.header = header;</span><br><span class="line">        <span class="keyword">let</span> row_ctx_list = ctx.row_all();</span><br><span class="line">        <span class="keyword">for</span> (_i, row_ctx) <span class="keyword">in</span> row_ctx_list.iter().enumerate() &#123;</span><br><span class="line">            <span class="keyword">let</span> row = <span class="keyword">self</span>.row(&amp;row_ctx);</span><br><span class="line">            <span class="keyword">self</span>.csv.rows.push(row);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/gsongsong/antlr4rust_quickstart/commit/541cd68c7587e62263242df5a2998a5e9dff71ce">here</a>.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article id="post-quick-start-on-antlr4-in-rust-part2" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-06-01T15:00:00.000Z"><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2/">2020-06-02</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2/">Quick start on ANTLR4 in Rust - part2</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p><em>This is my note in adopting and learning ANTLR4Rust</em></p>
+<p><strong>Series</strong></p>
+<ul>
+<li><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1">Quick Start on ANTLR4 in Rust — Part1</a></li>
+<li>Quick Start on ANTLR4 in Rust — Part2 (This article)</li>
+<li><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3">Quick Start on ANTLR4 in Rust — Part3</a></li>
+</ul>
+<hr>
+<p>In the previous article, we built the minimal working example walking a parse tree using a listener. In this article, we are going to store a parsed CSV structure into a variable to use in the future.</p>
+<p>Define a CSV structure:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">type</span> <span class="title">Row</span></span> = <span class="built_in">Vec</span>&lt;<span class="built_in">String</span>&gt;;<span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">CSV</span></span> &#123;</span><br><span class="line">    header: Row,</span><br><span class="line">    rows: <span class="built_in">Vec</span>&lt;Row&gt;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Add fields to a listener:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Listener</span></span> &#123;</span><br><span class="line">    csv: <span class="built_in">Box</span>&lt;CSV&gt;,</span><br><span class="line">    add_to_header: <span class="built_in">bool</span>,</span><br><span class="line">    row_to_add: <span class="built_in">Vec</span>&lt;<span class="built_in">String</span>&gt;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>csv</code> will be a resultant CSV structure. <code>add_to_header</code> and <code>row_to_add</code> are internal state variables to generate a CSV structure.</p>
+<p>Implement a listener:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> CSVListener <span class="keyword">for</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_hdr</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;</span><br><span class="line">        <span class="keyword">self</span>.add_to_header = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_hdr</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;</span><br><span class="line">        <span class="keyword">self</span>.csv.header = <span class="keyword">self</span>.row_to_add.to_vec();</span><br><span class="line">        <span class="keyword">self</span>.row_to_add.clear();</span><br><span class="line">        <span class="keyword">self</span>.add_to_header = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_row</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_row</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">self</span>.add_to_header &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">self</span>.csv.rows.push(<span class="keyword">self</span>.row_to_add.to_vec());</span><br><span class="line">        <span class="keyword">self</span>.row_to_add.clear();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_field</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_field</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;</span><br><span class="line">        <span class="keyword">self</span>.row_to_add.push(_ctx.get_text());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Feed an input to a parse and extract the result:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> input = <span class="built_in">String</span>::from(</span><br><span class="line">        <span class="string">&quot;This, is, a, header</span></span><br><span class="line"><span class="string">This, is, a, row</span></span><br><span class="line"><span class="string">&quot;</span>,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">let</span> lexer = CSVLexer::new(<span class="built_in">Box</span>::new(InputStream::new(input)));</span><br><span class="line">    <span class="keyword">let</span> token_source = CommonTokenStream::new(lexer);</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> parser = CSVParser::new(<span class="built_in">Box</span>::new(token_source));</span><br><span class="line">    <span class="keyword">let</span> listener_id = parser.add_parse_listener(<span class="built_in">Box</span>::new(Listener &#123;</span><br><span class="line">        csv: <span class="built_in">Box</span>::new(CSV &#123;</span><br><span class="line">            header: Row::new(),</span><br><span class="line">            rows: <span class="built_in">Vec</span>::new(),</span><br><span class="line">        &#125;),</span><br><span class="line">        add_to_header: <span class="literal">false</span>,</span><br><span class="line">        row_to_add: Row::new(),</span><br><span class="line">    &#125;));</span><br><span class="line">    <span class="keyword">let</span> result = parser.csvFile();</span><br><span class="line">    <span class="built_in">assert!</span>(result.is_ok());</span><br><span class="line">    <span class="keyword">let</span> listener = parser.remove_parse_listener(listener_id);</span><br><span class="line">    <span class="keyword">let</span> csv = listener.csv;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:#?&#125;&quot;</span>, csv);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A tricky part is that we have to extract <code>csv</code> from <code>listener</code>. And to this end, we have to extract <code>listener</code> with <code>listener_id</code>.</p>
+<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/gsongsong/antlr4rust_quickstart/commit/0bc40c180d782d044097f68b756fdba6c5f82da0">here</a>.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article id="post-quick-start-on-antlr4-in-rust-part1" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-05-28T15:00:00.000Z"><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1/">2020-05-29</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1/">Quick start on ANTLR4 in Rust - part1</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p><em>This is my note in adopting and learning ANTLR4Rust</em></p>
+<p><strong>Series</strong></p>
+<ul>
+<li>Quick Start on ANTLR4 in Rust — Part1 (This article)</li>
+<li><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2">Quick Start on ANTLR4 in Rust — Part2</a></li>
+<li><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3">Quick Start on ANTLR4 in Rust — Part3</a></li>
+</ul>
+<hr>
+<p>Install nightly version of Rust (and make it default if you want for convenience).</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rustup toolchain install nightly</span><br><span class="line">$ rustup default nightly</span><br></pre></td></tr></table></figure>
+
+<p>Get ANTLR4 runtime for Rust from <a target="_blank" rel="noopener" href="https://github.com/rrevenantt/antlr4rust/releases">here</a>:</p>
+<p>Prepare a grammar. I will use an example grammar: <a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/antlr/grammars-v4/master/csv/CSV.g4">https://raw.githubusercontent.com/antlr/grammars-v4/master/csv/CSV.g4</a></p>
+<p>Generate a parser:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar &lt;ANTLR4 runtime path&gt; -Dlanguage=Rust CSV.g4</span><br></pre></td></tr></table></figure>
+
+<p>You will get <code>csvlexer.rs</code>, <code>csvlistener.rs</code> , <code>csvparser.rs</code> . Place them into your project <code>src</code> directory.</p>
+<p>Add dependencies in <code>Cargo.toml</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[dependencies]</span><br><span class="line">lazy_static = &quot;1.4&quot;</span><br><span class="line">antlr-rust = &quot;0.1&quot;</span><br></pre></td></tr></table></figure>
+
+<p>Add a feature and import <code>lazy_static</code> macros to the root module:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#![feature(try_blocks)]</span></span><br><span class="line"><span class="meta">#[macro_use]</span></span><br><span class="line"><span class="keyword">extern</span> crates lazy_static;</span><br></pre></td></tr></table></figure>
+
+<p>Import common and essential things:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> antlr_rust::common_token_stream::CommonTokenStream;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::input_stream::InputStream;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::parser_rule_context::ParserRuleContext;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::tree::&#123;ErrorNode, ParseTreeListener, TerminalNode&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Import grammar-specific things:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mod</span> csvlexer;</span><br><span class="line"><span class="keyword">mod</span> csvlistener;</span><br><span class="line"><span class="keyword">mod</span> csvparser;</span><br><span class="line"><span class="keyword">use</span> csvlexer::CSVLexer;</span><br><span class="line"><span class="keyword">use</span> csvlistener::CSVListener;</span><br><span class="line"><span class="keyword">use</span> csvparser::*;</span><br></pre></td></tr></table></figure>
+
+<p>Implement <code>ParseTreeListener</code>, a supertraint of <code>CSVListener</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Listener</span></span>;<span class="keyword">impl</span> ParseTreeListener <span class="keyword">for</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">visit_terminal</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, node: &amp;TerminalNode) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">visit_error_node</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, node: &amp;ErrorNode) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_every_rule</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;<span class="keyword">dyn</span> ParserRuleContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_every_rule</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;<span class="keyword">dyn</span> ParserRuleContext) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Implement <code>CSVListener</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> CSVListener <span class="keyword">for</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_hdr</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_hdr</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_row</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_row</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_field</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_field</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Read and parse an input. Note that <code>csvFile</code> in the last line is a rule name in <code>CSV.g4</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> input = <span class="built_in">String</span>::from(</span><br><span class="line"><span class="string">&quot;This, is, a, header</span></span><br><span class="line"><span class="string">This, is, a, row</span></span><br><span class="line"><span class="string">&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> lexer = CSVLexer::new(<span class="built_in">Box</span>::new(InputStream::new(input)));</span><br><span class="line">    <span class="keyword">let</span> token_source = CommonTokenStream::new(lexer);</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> parser = CSVParser::new(<span class="built_in">Box</span>::new(token_source));</span><br><span class="line">    parser.add_parse_listener(<span class="built_in">Box</span>::new(Listener &#123;&#125;));</span><br><span class="line">    <span class="keyword">let</span> result = parser.csvFile();</span><br><span class="line">    <span class="built_in">assert!</span>(result.is_ok());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/gsongsong/antlr4rust_quickstart/commit/1a4fb82e23bf9c5a33ed2298ef875f1fee80151f">here</a>.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article id="post-trilateration-using-the-levenberg-marquardt-method" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-05-28T15:00:00.000Z"><a href="/2020/05/29/trilateration-using-the-levenberg-marquardt-method/">2020-05-29</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/05/29/trilateration-using-the-levenberg-marquardt-method/">Trilateration using the Levenberg-Marquardt method</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>True range multilateration is a method to determine the location of a movable vehicle or stationary point in space using multiple ranges (distances) between the vehicle/point and multiple spatially-separated known locations (often termed ‘stations’). — True range multilateration, Wikipedia</p>
+</blockquote>
+<p>We can define a trilateration as an optimization problem to minimize a cost function \(S\) for a given estimate \(\beta\)<em>,</em> a tuple of \((x, y, z)\)</p>
+<p>$$\begin{aligned}<br>S(\beta)&amp;=\sum_{i=1}^{N}f_i(\beta)\\<br>&amp;=\sum_{i=1}^{N}\left[r_i-\sqrt{(x-X_i)^2+(y-Y_i)^2+(z-Z_i)^2}\right]^2<br>\end{aligned}$$</p>
+<p>where \(r_i\) is a measured distnace between an Anchor (i), whose coordinates are \((X_i, Y_i, Z_i)\).</p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Levenberg-Marquardt_algorithm">Levenberg-Marquardt method</a> is defined by:</p>
+<p>$$\beta_{k+1}=\beta_k-\left(J^TJ+\mu_kdiag\left(J^TJ\right)\right)^{-1}J^Tf(\beta_k)$$</p>
+<p>where \(J\) is the Jacobian matrix and \(f\) is a column vector composed of \(f_i\):</p>
+<p>$$\begin{aligned}<br>J&amp;=\begin{bmatrix}<br>\frac{\partial f_1}{\partial x} &amp; \frac{\partial f_1}{\partial y} &amp; \frac{\partial f_1}{\partial z} \\<br>\frac{\partial f_2}{\partial x} &amp; \frac{\partial f_2}{\partial y} &amp; \frac{\partial f_2}{\partial z} \\<br>\vdots &amp; \vdots &amp; \vdots \\<br>\frac{\partial f_N}{\partial x} &amp; \frac{\partial f_N}{\partial y} &amp; \frac{\partial f_N}{\partial z}<br>\end{bmatrix}\\<br>&amp;=\begin{bmatrix}<br>F_1(x-X_1) &amp; F_1(y-Y_1) &amp; F_1(z-Z_1) \\<br>F_2(x-X_2) &amp; F_2(y-Y_2) &amp; F_2(z-Z_2) \\<br>\vdots &amp; \vdots &amp; \vdots \\<br>F_N(x-X_N) &amp; F_N(y-Y_N) &amp; F_N(z-Z_N)<br>\end{bmatrix}<br>\end{aligned}$$</p>
+<p>where \(F_i\) is a shorthand of each derivative:</p>
+<p>$$F_i=\frac{r_i}{\sqrt{(x-X_i)^2+(y-Y_i)^2+(z-Z_i)^2}}$$</p>
+<p>Now, we can estimate \(\beta\) by iterating the equation until it converges.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+<nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="as_sitesearch" value="jeon.engineer">
+  </form>
+</div>
+
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/ANTLR4/">ANTLR4</a><small>3</small></li>
+  
+    <li><a href="/tags/Ant-Design/">Ant Design</a><small>1</small></li>
+  
+    <li><a href="/tags/ArangoDB/">ArangoDB</a><small>2</small></li>
+  
+    <li><a href="/tags/Optimization/">Optimization</a><small>1</small></li>
+  
+    <li><a href="/tags/Positioning/">Positioning</a><small>1</small></li>
+  
+    <li><a href="/tags/React/">React</a><small>1</small></li>
+  
+    <li><a href="/tags/Rust/">Rust</a><small>3</small></li>
+  
+    <li><a href="/tags/Trilateration/">Trilateration</a><small>1</small></li>
+  
+    <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2021 Seokseong Jeon
+  
+</div>
+<div class="clearfix"></div></footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+
+
+<script src="/js/gallery.js"></script>
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+<script>
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
