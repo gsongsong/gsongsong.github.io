@@ -412,6 +412,47 @@
 
 
 
+  <article id="post-preventing-privacy-leak-with-turingfonts-substitution-cipher" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-03-06T15:00:00.000Z"><a href="/2020/03/07/preventing-privacy-leak-with-turingfonts-substitution-cipher/">2020-03-07</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/03/07/preventing-privacy-leak-with-turingfonts-substitution-cipher/">Preventing privacy leak with TuringFonts (substitution cipher)</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Download one of web fonts (<code>.woff2</code>) from <a target="_blank" rel="noopener" href="http://jfmdev.github.io/TuringFonts/">TuringFonts</a>. Assumed Zebra is used here</p>
+<p>Put the font to the web directory and define the below in a stylesheet:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: ArialZebra;</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">&quot;arial_zebra.woff2&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.zebra-substitution</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: ArialZebra</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Assign <code>zebra-substitution</code> class to where it needs</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">&quot;zebra-substitution&quot;</span>&gt;</span>pgalk87@cjzfi.blj<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://codepen.io/gsongsong/pen/MWwdMZO">See</a> how it looks.</p>
+<p>TuringFonts also provides <a target="_blank" rel="noopener" href="http://jfmdev.github.io/TuringFonts/encoder.html">Encoder</a> to get a ciphered text.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
   <article id="post-building-thrift-on-windows-10" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -598,6 +639,8 @@
   
     <li><a href="/tags/Positioning/">Positioning</a><small>1</small></li>
   
+    <li><a href="/tags/Privacy/">Privacy</a><small>1</small></li>
+  
     <li><a href="/tags/React/">React</a><small>1</small></li>
   
     <li><a href="/tags/Rust/">Rust</a><small>3</small></li>
@@ -605,6 +648,8 @@
     <li><a href="/tags/Thrift/">Thrift</a><small>1</small></li>
   
     <li><a href="/tags/Trilateration/">Trilateration</a><small>1</small></li>
+  
+    <li><a href="/tags/Web-font/">Web font</a><small>1</small></li>
   
     <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
   
