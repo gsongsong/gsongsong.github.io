@@ -1,0 +1,294 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Positioning system using DecaWave DW1000 | Jeon, an engineer</title>
+  <meta name="author" content="Seokseong Jeon">
+  
+  <meta name="description" content="DecaWave’s DW1000DW1000 is a UWB communication and ranging module manufactured by DecaWave.It provides a fairly good ranging accuracy (&amp;lt; 2 cm).  No">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Positioning system using DecaWave DW1000"/>
+  <meta property="og:site_name" content="Jeon, an engineer"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link rel="shortcut icon" href="/favicon.png">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <!--[if lt IE 9]><script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script><![endif]-->
+  
+
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Jeon, an engineer</a></h1>
+  <h2><a href="/">Write the unwritten</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-positioning-system-using-decawave-dw1000" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2017-08-24T00:00:00.000Z"><a href="/2017/08/24/positioning-system-using-decawave-dw1000/">2017-08-24</a></time>
+      
+      
+  
+    <h1 class="p-name title" itemprop="headline name">Positioning system using DecaWave DW1000</h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <h2><span id="decawaves-dw1000">DecaWave’s DW1000</span></h2><p><a target="_blank" rel="noopener" href="https://decawave.com/products/dw1000">DW1000</a> is a UWB communication and ranging module manufactured by DecaWave.<br>It provides a fairly good ranging accuracy (&lt; 2 cm).  Not only a simple anchor-tag ranging system, let’s make a practical centimeter-level precision indoor positioning system using it</p>
+<h2><span id="system-design">System Design</span></h2><h3><span id="overview">Overview</span></h3><p>A setup is shown in a figure below:</p>
+<img src="/2017/08/24/positioning-system-using-decawave-dw1000/overview.png" class>
+
+<ul>
+<li>A tag<ul>
+<li>A tag is composed of two components—Raspberry Pi and Arduino Pro Mini</li>
+<li>Raspberry Pi controles a higher level indoor positioning system<ul>
+<li>It triggers Arduino Pro Mini to probe anchors and measure distance between it and each anchor</li>
+<li>It requests distance measurements on Arduino Pro Mini and locate itself through trilateration</li>
+</ul>
+</li>
+<li>Arduino Pro Mini<ul>
+<li>It is required due to similar reasons of anchors</li>
+<li>It receives commands from Raspberry Pi and executes the corresponding process<br>Processes are:<ul>
+<li>Probing anchors nearby and exchanging series of frames with each anchor<br>to measure distance</li>
+<li>Reporting probed anchors and measured distance values</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Anchors<ul>
+<li>They are deployed in a site of interest and their 2D/3D coordinates are known</li>
+<li>They are implemented on Arduino Pro Mini for the following reasons:<ul>
+<li>Arduino Pro Mini’s low power consumption</li>
+<li>Anchor’s fast response requirement (order of milliseconds)</li>
+<li>Anchor’s simple tasks (receiving and transmitting UWB frames)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>An overall sequence diagram is illustrated below. <code>Tag (Arduino)</code> is actually composed of Arduino Pro Mini and DW1000.</p>
+<img src="/2017/08/24/positioning-system-using-decawave-dw1000/sequence.png" class>
+
+<h3><span id="state-machine-tag">State Machine: Tag</span></h3><p>A figure below is a state diagram of a tag:</p>
+<img src="/2017/08/24/positioning-system-using-decawave-dw1000/state-tag.png" class>
+
+<p>When a Raspberry Pi commands via I2C to scan, it goes into <code>SCAN</code> state and broadcasts a <code>PING</code> message. Going into <code>PONG</code> state immediately, it waits for <code>PONG</code> messages from anchors nearby for a certain duration. I set it to 100 ms.</p>
+<p>If it discovers 3 or more anchors during the <code>PONG</code> state, it goes into <code>ROUNDROBIN</code> state. It exchanges 4 messages with each discovered anchor sequentially, i.e. <code>POLL</code> to an anchor, <code>POLL_ACK</code> from an anchor, <code>RANGE</code> to an anchor, and <code>RANGE_REPORT</code> from an anchor. After sending <code>POLL</code> and <code>RANGE</code> message, it waits for a response message for a certain timeout of 10 ms.</p>
+<p>After 4 messages are exchanged with each anchor, it calculates distance between an anchor using Tx/Rx timestamp. It adopts two-way ranging algorithm, which is a bit computational intensive, but I think it is not that much intensive. For more information about two-way ranging, please refer the official appliclation note <a target="_blank" rel="noopener" href="https://decawave.com/sites/default/files/aps013_dw1000_and_two_way_ranging_v2.2.pdf">APS013 by DecaWave</a>.</p>
+<h3><span id="state-machine-anchor">State Machine: Anchor</span></h3><p>A state diagram of an anchor is simple:</p>
+<img src="/2017/08/24/positioning-system-using-decawave-dw1000/state-tag.png" class>
+
+<ul>
+<li>It normally stays at <code>IDLE</code> state</li>
+<li>If it receives a <code>PING</code> message, it tries to send a <code>PONG</code> message with a random delay between 0 and 90 ms to avoid the collision and goes into <code>PENDING_PONG</code> state</li>
+<li>If it receives a <code>POLL</code> message and sends a <code>POLL_ACK</code> message, it goes into <code>RANGE</code> state and waits for a <code>RANGE</code> message is received<ul>
+<li>If timeout of 10 ms expires, it returns to <code>IDLE</code> state</li>
+<li>If it receives a <code>RANGE</code> message, it sends a <code>RANGE_REPORT</code> message to a tag</li>
+</ul>
+</li>
+</ul>
+<h2><span id="implementation">Implementation</span></h2><p>The whole implementation can be found in <a target="_blank" rel="noopener" href="https://github.com/gsongsong/dw1000-positioning">my GitHub repository</a>. I used <a target="_blank" rel="noopener" href="https://github.com/thotro/arduino-dw1000">arduino-dw1000</a> for controlling DW1000 using Arduino. I followed wiring between Arduino Pro Mini and DW1000 as defined in <code>examples/Ranging&#123;Anchor,Tag&#125;</code> of the library. Only I2C interface is needed to connect Raspberry Pi and Arduino Pro Mini</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+  
+  <div class="tags">
+    <a href="/tags/DecaWave/">DecaWave</a>, <a href="/tags/DW1000/">DW1000</a>, <a href="/tags/DWM1000/">DWM1000</a>, <a href="/tags/positioning/">positioning</a>, <a href="/tags/trilateration/">trilateration</a>, <a href="/tags/UWB/">UWB</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Comments</h1>
+
+  
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="as_sitesearch" value="jeon.engineer">
+  </form>
+</div>
+
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/ANTLR4/">ANTLR4</a><small>3</small></li>
+  
+    <li><a href="/tags/Amazon/">Amazon</a><small>1</small></li>
+  
+    <li><a href="/tags/Ant-Design/">Ant Design</a><small>1</small></li>
+  
+    <li><a href="/tags/ArangoDB/">ArangoDB</a><small>2</small></li>
+  
+    <li><a href="/tags/DW1000/">DW1000</a><small>1</small></li>
+  
+    <li><a href="/tags/DWM1000/">DWM1000</a><small>1</small></li>
+  
+    <li><a href="/tags/DecaWave/">DecaWave</a><small>2</small></li>
+  
+    <li><a href="/tags/EVK1000/">EVK1000</a><small>1</small></li>
+  
+    <li><a href="/tags/Electron/">Electron</a><small>2</small></li>
+  
+    <li><a href="/tags/Git/">Git</a><small>1</small></li>
+  
+    <li><a href="/tags/Intel/">Intel</a><small>1</small></li>
+  
+    <li><a href="/tags/OpenAPI/">OpenAPI</a><small>1</small></li>
+  
+    <li><a href="/tags/React/">React</a><small>1</small></li>
+  
+    <li><a href="/tags/Rust/">Rust</a><small>3</small></li>
+  
+    <li><a href="/tags/TREK1000/">TREK1000</a><small>1</small></li>
+  
+    <li><a href="/tags/Thrift/">Thrift</a><small>1</small></li>
+  
+    <li><a href="/tags/UML/">UML</a><small>1</small></li>
+  
+    <li><a href="/tags/UWB/">UWB</a><small>2</small></li>
+  
+    <li><a href="/tags/Wi-Fi/">Wi-Fi</a><small>1</small></li>
+  
+    <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
+  
+    <li><a href="/tags/email/">email</a><small>1</small></li>
+  
+    <li><a href="/tags/optimization/">optimization</a><small>1</small></li>
+  
+    <li><a href="/tags/positioning/">positioning</a><small>3</small></li>
+  
+    <li><a href="/tags/privacy/">privacy</a><small>1</small></li>
+  
+    <li><a href="/tags/trilateration/">trilateration</a><small>2</small></li>
+  
+    <li><a href="/tags/web-font/">web font</a><small>1</small></li>
+  
+    <li><a href="/tags/webpack/">webpack</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2021 Seokseong Jeon
+  
+</div>
+<div class="clearfix"></div></footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+
+
+<script src="/js/gallery.js"></script>
+
+
+
+<script>
+var disqus_shortname = 'jeon-an-engineer';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+<script>
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
