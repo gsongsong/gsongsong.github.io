@@ -52,6 +52,68 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-building-github-action-to-publish-hexo-post-from-github-issue" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2021-07-28T11:20:45.000Z"><a href="/2021/07/28/building-github-action-to-publish-hexo-post-from-github-issue/">2021-07-28</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2021/07/28/building-github-action-to-publish-hexo-post-from-github-issue/">Building GitHub Action to publish Hexo post from GitHub Issue</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>I wanted to write and publish a Hexo post without tedious commands such as <code>git clone</code>, <code>git pull</code>, <code>hexo new</code>, <code>hexo generate</code>, <code>git commit</code> and <code>git push</code>. I saw the feasibility to build an automated publishing system using GitHub Issue and GitHub Actions for this purpose.</p>
+<p>Here’s workflow what I thought:</p>
+<ul>
+<li>A user makes an issue, a draft of a post on GitHub Issue</li>
+<li>GitHub Workflow is triggered against the issue</li>
+<li>The workflow converts the issue to a Hexo post</li>
+</ul>
+<p><strong>GitHub Issue</strong></p>
+<p>I thought that GitHub Issue is a perfect system to draft a post. It has a title, a content and a date/time of update and those information can be a title, a content and a date/time of a post. One thing missing is tags of a post. To achieve this, I got an idea to use labels of an issue as tags of a post.</p>
+<p><strong>GitHub Action</strong></p>
+<p>I did a research whether there exists GitHub Actions converting an issue to a Hexo post, but I found nothing. So I decided to build a GitHub Action for it.</p>
+<p>First of all, it takes two parameters, <code>issue_url</code> and <code>token</code> and extracts <code>endpoint</code> from <code>issue_url</code>:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> core <span class="keyword">from</span> <span class="string">&#x27;@actions/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> issueUrl = core.getInput(<span class="string">&#x27;issue_url&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> index = issueUrl.indexOf(<span class="string">&#x27;/repos&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> endpoint = issueUrl.substring(index);</span><br><span class="line"><span class="keyword">const</span> token = core.getInput(<span class="string">&#x27;token&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>And then, it initializes Hexo:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Hexo <span class="keyword">from</span> <span class="string">&#x27;hexo&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> hexo = <span class="keyword">new</span> Hexo(process.cwd(), &#123;&#125;);</span><br><span class="line">hexo.init().then(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// Described below</span></span><br><span class="line">&#125;).catch(<span class="function">(<span class="params">reason</span>) =&gt;</span> &#123;</span><br><span class="line">    core.setFailed(reason);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>After Hexo is initialized, it retrieves information of an issue:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Octokit &#125; <span class="keyword">from</span> <span class="string">&#x27;octokit&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// After resolving `hexo.init()`</span></span><br><span class="line"><span class="keyword">const</span> gh = <span class="keyword">new</span> Octokit(&#123; <span class="attr">auth</span>: token &#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`Converting issue <span class="subst">$&#123;endpoint&#125;</span> to Hexo post...`</span>);</span><br><span class="line">gh.request(<span class="string">`GET <span class="subst">$&#123;endpoint&#125;</span>`</span>).then(<span class="function">(<span class="params">response</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; title, <span class="attr">updated_at</span>: date, labels, milestone, <span class="attr">body</span>: content &#125; = response.data;</span><br><span class="line">    <span class="comment">// Described below</span></span><br><span class="line">&#125;).catch(<span class="function">(<span class="params">reason</span>) =&gt;</span> &#123;</span><br><span class="line">    core.setFailed(reason);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>If a draft is set to be published, it derives tags and creates a Hexo post:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> MILESTONE_PUBLISH = <span class="string">&#x27;publish&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (milestone.title !== MILESTONE_PUBLISH) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`Issue does not have milestone <span class="subst">$&#123;MILESTONE_PUBLISH&#125;</span>`</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> tags = labels.map(<span class="function">(<span class="params">label: <span class="built_in">any</span></span>) =&gt;</span> label.name);</span><br><span class="line">    hexo.post.create(&#123;</span><br><span class="line">        title,</span><br><span class="line">        date,</span><br><span class="line">        tags,</span><br><span class="line">        content,</span><br><span class="line">    &#125; <span class="keyword">as</span> <span class="built_in">any</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>At this point, a markdown file is generated and further actions to be prepared to complete publishing a post. The complete implementation of this action can be found <a target="_blank" rel="noopener" href="https://github.com/gsongsong/issue-to-hexo">here</a>.</p>
+<p><strong>Workflow</strong></p>
+<p>Now a complete workflow needs to be setup. The workflow below converts an issue to a post and pushes it to the repository:</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">Issue</span> <span class="string">to</span> <span class="string">Hexo</span></span><br><span class="line"><span class="attr">on:</span></span><br><span class="line">  <span class="attr">issues:</span></span><br><span class="line">    <span class="comment"># Sufficient to trigger this workflow when an issue is milestoned</span></span><br><span class="line">    <span class="attr">types:</span> [ <span class="string">milestoned</span> ]</span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">build:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/checkout@v2</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">gsongsong/issue-to-hexo@v1.0.0</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">issue_url:</span> <span class="string">$&#123;&#123;</span> <span class="string">github.event.issue.url</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="comment"># Personal access token used to get information of Issue</span></span><br><span class="line">          <span class="attr">token:</span> <span class="string">$&#123;&#123;</span> <span class="string">secrets.token</span> <span class="string">&#125;&#125;</span></span><br><span class="line">      <span class="comment"># At this point, a markdown file is generated and untracked</span></span><br><span class="line">      <span class="comment"># Take further action, e.g. generate (`hexo generate`), commit and push</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Commit</span> <span class="string">post</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">|</span></span><br><span class="line"><span class="string">          git add .</span></span><br><span class="line"><span class="string">          git config user.name &quot;issue-to-hexo bot&quot;</span></span><br><span class="line"><span class="string">          git config.user.email &quot;&lt;&gt;&quot;</span></span><br><span class="line"><span class="string">          git commit -m &quot;Add a post&quot;</span></span><br><span class="line"><span class="string"></span>      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Push</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">ad-m/github-push-action@master</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">github_token:</span> <span class="string">$&#123;&#123;</span> <span class="string">secrets.token</span> <span class="string">&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>I have another workflow which generates (<code>hexo generate</code>) a blog from the pushed code. I made two separate workflows because I both use GitHub Issue to draft a post and manually write and push a markdown draft on my PC. Here’s the workflow:</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">Publish</span></span><br><span class="line"><span class="attr">on:</span></span><br><span class="line">  <span class="attr">push:</span></span><br><span class="line">    <span class="attr">branches:</span> [ <span class="string">master</span> ]</span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">build:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/checkout@v2</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">persist-credentials:</span> <span class="string">&#x27;false&#x27;</span></span><br><span class="line">          <span class="attr">submodules:</span> <span class="string">&#x27;true&#x27;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/setup-node@v2</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">node-version:</span> <span class="string">&#x27;14&#x27;</span></span><br><span class="line">      <span class="comment"># This submodule is a directory that contains generated Hexo blog</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Checkout</span> <span class="string">submodule</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">|</span></span><br><span class="line"><span class="string">          cd public</span></span><br><span class="line"><span class="string">          git checkout master</span></span><br><span class="line"><span class="string"></span>      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Build</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">|</span></span><br><span class="line"><span class="string">          npm install</span></span><br><span class="line"><span class="string">          npm run build</span></span><br><span class="line"><span class="string"></span>      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Commit</span> <span class="string">submodule</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">|</span></span><br><span class="line"><span class="string">          cd public</span></span><br><span class="line"><span class="string">          git add .</span></span><br><span class="line"><span class="string">          git config user.name &quot;gsongsong/hexo-src bot&quot;</span></span><br><span class="line"><span class="string">          git config user.email &quot;&lt;&gt;&quot;</span></span><br><span class="line"><span class="string">          git commit -m &quot;Publish&quot;</span></span><br><span class="line"><span class="string"></span>      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Push</span> <span class="string">submodule</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">ad-m/github-push-action@master</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">github_token:</span> <span class="string">$&#123;&#123;</span> <span class="string">secrets.token</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">directory:</span> <span class="string">&#x27;public&#x27;</span></span><br><span class="line">          <span class="attr">repository:</span> <span class="string">&#x27;gsongsong/gsongsong.github.io&#x27;</span></span><br><span class="line">      <span class="comment"># These actions commits and pushes the submodule to the main module</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Commit</span> <span class="string">main</span> <span class="string">module</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">|</span></span><br><span class="line"><span class="string">          git add .</span></span><br><span class="line"><span class="string">          git config user.name &quot;gsongsong/hexo-src bot&quot;</span></span><br><span class="line"><span class="string">          git config user.email &quot;&lt;&gt;&quot;</span></span><br><span class="line"><span class="string">          git commit -m &quot;Publish&quot;</span></span><br><span class="line"><span class="string"></span>      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Push</span> <span class="string">main</span> <span class="string">module</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">ad-m/github-push-action@master</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
   <article id="post-drag-sorting-ant-design-table-with-dnd-kit" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -514,51 +576,6 @@
 
 
 
-  <article id="post-trilateration-using-the-levenberg-marquardt-method" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2020-05-29T00:00:00.000Z"><a href="/2020/05/29/trilateration-using-the-levenberg-marquardt-method/">2020-05-29</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2020/05/29/trilateration-using-the-levenberg-marquardt-method/">Trilateration using the Levenberg-Marquardt method</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>True range multilateration is a method to determine the location of a movable vehicle or stationary point in space using multiple ranges (distances) between the vehicle/point and multiple spatially-separated known locations (often termed ‘stations’). — True range multilateration, Wikipedia</p>
-</blockquote>
-<p>We can define a trilateration as an optimization problem to minimize a cost function \(S\) for a given estimate \(\beta\)<em>,</em> a tuple of \((x, y, z)\)</p>
-<p>$$\begin{aligned}<br>S(\beta)&amp;=\sum_{i=1}^{N}f_i(\beta)\\<br>&amp;=\sum_{i=1}^{N}\left[r_i-\sqrt{(x-X_i)^2+(y-Y_i)^2+(z-Z_i)^2}\right]^2<br>\end{aligned}$$</p>
-<p>where \(r_i\) is a measured distnace between an Anchor (i), whose coordinates are \((X_i, Y_i, Z_i)\).</p>
-<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Levenberg-Marquardt_algorithm">Levenberg-Marquardt method</a> is defined by:</p>
-<p>$$\beta_{k+1}=\beta_k-\left(J^TJ+\mu_kdiag\left(J^TJ\right)\right)^{-1}J^Tf(\beta_k)$$</p>
-<p>where \(J\) is the Jacobian matrix and \(f\) is a column vector composed of \(f_i\):</p>
-<p>$$\begin{aligned}<br>J&amp;=\begin{bmatrix}<br>\frac{\partial f_1}{\partial x} &amp; \frac{\partial f_1}{\partial y} &amp; \frac{\partial f_1}{\partial z} \\<br>\frac{\partial f_2}{\partial x} &amp; \frac{\partial f_2}{\partial y} &amp; \frac{\partial f_2}{\partial z} \\<br>\vdots &amp; \vdots &amp; \vdots \\<br>\frac{\partial f_N}{\partial x} &amp; \frac{\partial f_N}{\partial y} &amp; \frac{\partial f_N}{\partial z}<br>\end{bmatrix}\\<br>&amp;=\begin{bmatrix}<br>F_1(x-X_1) &amp; F_1(y-Y_1) &amp; F_1(z-Z_1) \\<br>F_2(x-X_2) &amp; F_2(y-Y_2) &amp; F_2(z-Z_2) \\<br>\vdots &amp; \vdots &amp; \vdots \\<br>F_N(x-X_N) &amp; F_N(y-Y_N) &amp; F_N(z-Z_N)<br>\end{bmatrix}<br>\end{aligned}$$</p>
-<p>where \(F_i\) is a shorthand of each derivative:</p>
-<p>$$F_i=\frac{r_i}{\sqrt{(x-X_i)^2+(y-Y_i)^2+(z-Z_i)^2}}$$</p>
-<p>Now, we can estimate \(\beta\) by iterating the equation until it converges.</p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
 
 <nav id="pagination">
   
@@ -602,6 +619,10 @@
     <li><a href="/tags/electron/">Electron</a><small>2</small></li>
   
     <li><a href="/tags/git/">Git</a><small>1</small></li>
+  
+    <li><a href="/tags/github-action/">GitHub Action</a><small>1</small></li>
+  
+    <li><a href="/tags/hexo/">Hexo</a><small>1</small></li>
   
     <li><a href="/tags/intel/">Intel</a><small>1</small></li>
   

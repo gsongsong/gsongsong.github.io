@@ -52,6 +52,51 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-trilateration-using-the-levenberg-marquardt-method" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-05-29T00:00:00.000Z"><a href="/2020/05/29/trilateration-using-the-levenberg-marquardt-method/">2020-05-29</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/05/29/trilateration-using-the-levenberg-marquardt-method/">Trilateration using the Levenberg-Marquardt method</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>True range multilateration is a method to determine the location of a movable vehicle or stationary point in space using multiple ranges (distances) between the vehicle/point and multiple spatially-separated known locations (often termed ‘stations’). — True range multilateration, Wikipedia</p>
+</blockquote>
+<p>We can define a trilateration as an optimization problem to minimize a cost function \(S\) for a given estimate \(\beta\)<em>,</em> a tuple of \((x, y, z)\)</p>
+<p>$$\begin{aligned}<br>S(\beta)&amp;=\sum_{i=1}^{N}f_i(\beta)\\<br>&amp;=\sum_{i=1}^{N}\left[r_i-\sqrt{(x-X_i)^2+(y-Y_i)^2+(z-Z_i)^2}\right]^2<br>\end{aligned}$$</p>
+<p>where \(r_i\) is a measured distnace between an Anchor (i), whose coordinates are \((X_i, Y_i, Z_i)\).</p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Levenberg-Marquardt_algorithm">Levenberg-Marquardt method</a> is defined by:</p>
+<p>$$\beta_{k+1}=\beta_k-\left(J^TJ+\mu_kdiag\left(J^TJ\right)\right)^{-1}J^Tf(\beta_k)$$</p>
+<p>where \(J\) is the Jacobian matrix and \(f\) is a column vector composed of \(f_i\):</p>
+<p>$$\begin{aligned}<br>J&amp;=\begin{bmatrix}<br>\frac{\partial f_1}{\partial x} &amp; \frac{\partial f_1}{\partial y} &amp; \frac{\partial f_1}{\partial z} \\<br>\frac{\partial f_2}{\partial x} &amp; \frac{\partial f_2}{\partial y} &amp; \frac{\partial f_2}{\partial z} \\<br>\vdots &amp; \vdots &amp; \vdots \\<br>\frac{\partial f_N}{\partial x} &amp; \frac{\partial f_N}{\partial y} &amp; \frac{\partial f_N}{\partial z}<br>\end{bmatrix}\\<br>&amp;=\begin{bmatrix}<br>F_1(x-X_1) &amp; F_1(y-Y_1) &amp; F_1(z-Z_1) \\<br>F_2(x-X_2) &amp; F_2(y-Y_2) &amp; F_2(z-Z_2) \\<br>\vdots &amp; \vdots &amp; \vdots \\<br>F_N(x-X_N) &amp; F_N(y-Y_N) &amp; F_N(z-Z_N)<br>\end{bmatrix}<br>\end{aligned}$$</p>
+<p>where \(F_i\) is a shorthand of each derivative:</p>
+<p>$$F_i=\frac{r_i}{\sqrt{(x-X_i)^2+(y-Y_i)^2+(z-Z_i)^2}}$$</p>
+<p>Now, we can estimate \(\beta\) by iterating the equation until it converges.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
   <article id="post-git-hooks-with-stderr" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -607,6 +652,10 @@
     <li><a href="/tags/electron/">Electron</a><small>2</small></li>
   
     <li><a href="/tags/git/">Git</a><small>1</small></li>
+  
+    <li><a href="/tags/github-action/">GitHub Action</a><small>1</small></li>
+  
+    <li><a href="/tags/hexo/">Hexo</a><small>1</small></li>
   
     <li><a href="/tags/intel/">Intel</a><small>1</small></li>
   
