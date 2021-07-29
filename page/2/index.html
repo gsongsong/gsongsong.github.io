@@ -52,6 +52,77 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-quick-start-on-antlr4-in-rust-part1" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-05-29T00:00:00.000Z"><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1/">2020-05-29</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1/">Quick start on ANTLR4 in Rust - part1</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p><em>This is my note in adopting and learning ANTLR4Rust</em></p>
+<p><strong>Series</strong></p>
+<ul>
+<li>Quick Start on ANTLR4 in Rust — Part1 (This article)</li>
+<li><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2">Quick Start on ANTLR4 in Rust — Part2</a></li>
+<li><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3">Quick Start on ANTLR4 in Rust — Part3</a></li>
+</ul>
+<hr>
+<p>Install nightly version of Rust (and make it default if you want for convenience).</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rustup toolchain install nightly</span><br><span class="line">$ rustup default nightly</span><br></pre></td></tr></table></figure>
+
+<p>Get ANTLR4 runtime for Rust from <a target="_blank" rel="noopener" href="https://github.com/rrevenantt/antlr4rust/releases">here</a>:</p>
+<p>Prepare a grammar. I will use an example grammar: <a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/antlr/grammars-v4/master/csv/CSV.g4">https://raw.githubusercontent.com/antlr/grammars-v4/master/csv/CSV.g4</a></p>
+<p>Generate a parser:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar &lt;ANTLR4 runtime path&gt; -Dlanguage=Rust CSV.g4</span><br></pre></td></tr></table></figure>
+
+<p>You will get <code>csvlexer.rs</code>, <code>csvlistener.rs</code> , <code>csvparser.rs</code> . Place them into your project <code>src</code> directory.</p>
+<p>Add dependencies in <code>Cargo.toml</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[dependencies]</span><br><span class="line">lazy_static = &quot;1.4&quot;</span><br><span class="line">antlr-rust = &quot;0.1&quot;</span><br></pre></td></tr></table></figure>
+
+<p>Add a feature and import <code>lazy_static</code> macros to the root module:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#![feature(try_blocks)]</span></span><br><span class="line"><span class="meta">#[macro_use]</span></span><br><span class="line"><span class="keyword">extern</span> crates lazy_static;</span><br></pre></td></tr></table></figure>
+
+<p>Import common and essential things:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> antlr_rust::common_token_stream::CommonTokenStream;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::input_stream::InputStream;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::parser_rule_context::ParserRuleContext;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::tree::&#123;ErrorNode, ParseTreeListener, TerminalNode&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Import grammar-specific things:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mod</span> csvlexer;</span><br><span class="line"><span class="keyword">mod</span> csvlistener;</span><br><span class="line"><span class="keyword">mod</span> csvparser;</span><br><span class="line"><span class="keyword">use</span> csvlexer::CSVLexer;</span><br><span class="line"><span class="keyword">use</span> csvlistener::CSVListener;</span><br><span class="line"><span class="keyword">use</span> csvparser::*;</span><br></pre></td></tr></table></figure>
+
+<p>Implement <code>ParseTreeListener</code>, a supertraint of <code>CSVListener</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Listener</span></span>;<span class="keyword">impl</span> ParseTreeListener <span class="keyword">for</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">visit_terminal</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, node: &amp;TerminalNode) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">visit_error_node</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, node: &amp;ErrorNode) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_every_rule</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;<span class="keyword">dyn</span> ParserRuleContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_every_rule</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;<span class="keyword">dyn</span> ParserRuleContext) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Implement <code>CSVListener</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> CSVListener <span class="keyword">for</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_hdr</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_hdr</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_row</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_row</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_field</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_field</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Read and parse an input. Note that <code>csvFile</code> in the last line is a rule name in <code>CSV.g4</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> input = <span class="built_in">String</span>::from(</span><br><span class="line"><span class="string">&quot;This, is, a, header</span></span><br><span class="line"><span class="string">This, is, a, row</span></span><br><span class="line"><span class="string">&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> lexer = CSVLexer::new(<span class="built_in">Box</span>::new(InputStream::new(input)));</span><br><span class="line">    <span class="keyword">let</span> token_source = CommonTokenStream::new(lexer);</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> parser = CSVParser::new(<span class="built_in">Box</span>::new(token_source));</span><br><span class="line">    parser.add_parse_listener(<span class="built_in">Box</span>::new(Listener &#123;&#125;));</span><br><span class="line">    <span class="keyword">let</span> result = parser.csvFile();</span><br><span class="line">    <span class="built_in">assert!</span>(result.is_ok());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/gsongsong/antlr4rust_quickstart/commit/1a4fb82e23bf9c5a33ed2298ef875f1fee80151f">here</a>.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
   <article id="post-trilateration-using-the-levenberg-marquardt-method" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -633,6 +704,8 @@
   <h3 class="title">Tags</h3>
   <ul class="entry">
   
+    <li><a href="/tags/3gpp/">3GPP</a><small>1</small></li>
+  
     <li><a href="/tags/antlr4/">ANTLR4</a><small>3</small></li>
   
     <li><a href="/tags/amazon/">Amazon</a><small>1</small></li>
@@ -659,7 +732,13 @@
   
     <li><a href="/tags/intel/">Intel</a><small>1</small></li>
   
+    <li><a href="/tags/nr/">NR</a><small>1</small></li>
+  
+    <li><a href="/tags/nr-dc/">NR-DC</a><small>1</small></li>
+  
     <li><a href="/tags/openapi/">OpenAPI</a><small>1</small></li>
+  
+    <li><a href="/tags/rrc/">RRC</a><small>1</small></li>
   
     <li><a href="/tags/react/">React</a><small>1</small></li>
   
@@ -677,6 +756,8 @@
   
     <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
   
+    <li><a href="/tags/dual-connectivity/">dual connectivity</a><small>1</small></li>
+  
     <li><a href="/tags/email/">email</a><small>1</small></li>
   
     <li><a href="/tags/optimization/">optimization</a><small>1</small></li>
@@ -684,6 +765,8 @@
     <li><a href="/tags/positioning/">positioning</a><small>3</small></li>
   
     <li><a href="/tags/privacy/">privacy</a><small>1</small></li>
+  
+    <li><a href="/tags/telecommunications/">telecommunications</a><small>1</small></li>
   
     <li><a href="/tags/trilateration/">trilateration</a><small>2</small></li>
   

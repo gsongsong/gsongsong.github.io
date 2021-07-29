@@ -52,6 +52,76 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-nr-rrc-changes-on-june-2021" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2021-07-29T11:07:24.000Z"><a href="/2021/07/29/nr-rrc-changes-on-june-2021/">2021-07-29</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2021/07/29/nr-rrc-changes-on-june-2021/">NR RRC changes on June 2021</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Some interesting changes</p>
+<!-- toc -->
+
+<ul>
+<li><a href="#r2-2106555-nr-dc-cell-group-capability-filtering"><a target="_blank" rel="noopener" href="https://www.3gpp.org/ftp/TSG_RAN/WG2_RL2/TSGR2_114-e/Docs/R2-2106555.zip">R2-2106555</a> NR-DC Cell Group capability filtering</a></li>
+<li><a href="#r2-2106712-correction-to-ca-parametersnr-fordc"><a target="_blank" rel="noopener" href="https://www.3gpp.org/ftp/TSG_RAN/WG2_RL2/TSGR2_114-e/Docs/R2-2106712.zip">R2-2106712</a> Correction to ca-ParametersNR-ForDC</a></li>
+<li><a href="#r2-2106754-clarification-on-the-timing-reference-of-pscell-smtc-configuration"><a target="_blank" rel="noopener" href="https://www.3gpp.org/ftp/TSG_RAN/WG2_RL2/TSGR2_114-e/Docs/R2-2106754.zip">R2-2106754</a> Clarification on the Timing Reference of PSCell SMTC Configuration</a></li>
+<li><a href="#r2-2105462-clarification-on-scellfrequencies"><a target="_blank" rel="noopener" href="https://www.3gpp.org/ftp/TSG_RAN/WG2_RL2/TSGR2_114-e/Docs/R2-2105462.zip">R2-2105462</a> Clarification on SCellFrequencies</a></li>
+</ul>
+<!-- tocstop -->
+
+<h2><span id="r2-2106555-nr-dc-cell-group-capability-filtering"> NR-DC Cell Group capability filtering</span></h2><p>This CR introduces <em>cell grouping</em> in UE capability enquiry for NR-DC. In Release 15, NR-DC is limited to FR1 MCG and FR2 SCG. But from Releae 16, this limitation is removed. It introduces ambiguity that which MCG and SCG configuration UE supports. To remove the ambiguity, the network can enquiry UE with <code>CellGrouping</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">UE-CapabilityRequestFilterCommon ::=            SEQUENCE &#123;</span><br><span class="line">    -- Omitted</span><br><span class="line">    [[</span><br><span class="line">    requestedCellGrouping-r16      SEQUENCE (SIZE (1..maxCellGroupings-r16)) OF CellGrouping-r16    OPTIONAL    -- Cond NRDC</span><br><span class="line">    ]]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CellGrouping-r16 ::     SEQUENCE &#123;</span><br><span class="line">    mcg-r16                 SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicatorNR,</span><br><span class="line">    scg-r16                 SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicatorNR,</span><br><span class="line">    mode-r16                ENUMERATED &#123;sync, async&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>For example, the network can enquiry UE with the following cell grouping filter:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123; mcg: [1, 2, 3], scg: [256, 257], mode:  sync &#125;,</span><br><span class="line">&#123; mcg: [1, 2, 3], scg: [256, 257], mode: async &#125;,</span><br><span class="line">&#123; mcg: [1, 2, 3], scg: [ 66,  77], mode:  sync &#125;,</span><br></pre></td></tr></table></figure>
+
+<p>UE receiving the filter, it reports supported band combinations with <code>supportedCellGrouping</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CA-ParametersNRDC-v16xy ::=                     SEQUENCE &#123;</span><br><span class="line">    supportedCellGrouping-r16                         BIT STRING (SIZE (1..maxCellGroupings-r16))        OPTIONAL</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>If the first bit of a bit string is set to 1, a given band combination supports NR-DC with the first cell grouping configuration.</p>
+<h2><span id="r2-2106712-correction-to-ca-parametersnr-fordc"> Correction to ca-ParametersNR-ForDC</span></h2><p>I believe the main point of the below change is to clarify that <code>ca-ParametersNR[-ForDC[-vABCD]]</code> applies separately.  I doubt that it is less likely to be misunderstood, but at the same time, I believe it is good to refine the statement.</p>
+<blockquote>
+<p>ca-ParametersNR-forDC (with and without suffix)<br>If this field is present for a band combination, it reports the UE capabilities when NR-DC is configured with the band combination. If <del>no</del> <ins>a</ins> version of this field (i.e., with <del>and</del> <ins>or</ins> without suffix) is <del>present</del> <ins>absent</ins> for a band combination, the <ins>corresponding</ins> ca-ParametersNR field versions <del>(with and without suffix)</del> in BandCombination <del>are</del> <ins>is</ins> applicable to the UE configured with NR-DC for the band combination. <ins>If a version of this field (i.e., with or without suffix) is present for a band combination but does not contain any parameters, the UE does not support the corresponding field version when configured with NR-DC for the band combination.</ins></p>
+</blockquote>
+<h2><span id="r2-2106754-clarification-on-the-timing-reference-of-pscell-smtc-configuration"> Clarification on the Timing Reference of PSCell SMTC Configuration</span></h2><p><code>targetCellSMTC-SCG</code> was originally introduced as name <code>smtc</code> in last September, but renamed for more clarity in the next RAN Plenary. It is useful when MCG and SCG have different timing reference. This CR clarifies how UE applies SMTC in a MCG mobility case.</p>
+<h2><span id="r2-2105462-clarification-on-scellfrequencies"> Clarification on SCellFrequencies</span></h2><p>It was a bug in the specification that ASN.1 structure and description of its interpretation. According to the below structure <code>scellFrequencies</code> can be absent:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CG-Config-v1590-IEs ::= SEQUENCE &#123;</span><br><span class="line">    scellFrequenciesSN-NR       SEQUENCE (SIZE (1.. maxNrofServingCells-1)) OF ARFCN-ValueNR       OPTIONAL,</span><br><span class="line">    scellFrequenciesSN-EUTRA    SEQUENCE (SIZE (1.. maxNrofServingCells-1)) OF ARFCN-ValueEUTRA    OPTIONAL,</span><br><span class="line">    nonCriticalExtension        CG-Config-v1610-IEs                                                OPTIONAL</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>However, the below statement specifies that the receiving node shall maintain the previous configuration:</p>
+<blockquote>
+<p>As an exception to this general rule, the absence of the below listed fields means that a receiving node maintains the values informed via the previous message.<br>(Omitted)</p>
+<ul>
+<li>scellFrequenciesSN-EUTRA;</li>
+<li>scellFrequenciesSN-NR.</li>
+</ul>
+</blockquote>
+<p>Comparing the structure and the statement, an obvious inconsistency exists that a sending node may omit the IE if no SCell exists. So the CR removes two IEs from the statement so that the receiving node shall overwrite the previous configuration with the new one.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
   <article id="post-building-github-action-to-publish-hexo-post-from-github-issue" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -505,77 +575,6 @@
 
 
 
-  <article id="post-quick-start-on-antlr4-in-rust-part1" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2020-05-29T00:00:00.000Z"><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1/">2020-05-29</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1/">Quick start on ANTLR4 in Rust - part1</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p><em>This is my note in adopting and learning ANTLR4Rust</em></p>
-<p><strong>Series</strong></p>
-<ul>
-<li>Quick Start on ANTLR4 in Rust — Part1 (This article)</li>
-<li><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2">Quick Start on ANTLR4 in Rust — Part2</a></li>
-<li><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3">Quick Start on ANTLR4 in Rust — Part3</a></li>
-</ul>
-<hr>
-<p>Install nightly version of Rust (and make it default if you want for convenience).</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rustup toolchain install nightly</span><br><span class="line">$ rustup default nightly</span><br></pre></td></tr></table></figure>
-
-<p>Get ANTLR4 runtime for Rust from <a target="_blank" rel="noopener" href="https://github.com/rrevenantt/antlr4rust/releases">here</a>:</p>
-<p>Prepare a grammar. I will use an example grammar: <a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/antlr/grammars-v4/master/csv/CSV.g4">https://raw.githubusercontent.com/antlr/grammars-v4/master/csv/CSV.g4</a></p>
-<p>Generate a parser:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar &lt;ANTLR4 runtime path&gt; -Dlanguage=Rust CSV.g4</span><br></pre></td></tr></table></figure>
-
-<p>You will get <code>csvlexer.rs</code>, <code>csvlistener.rs</code> , <code>csvparser.rs</code> . Place them into your project <code>src</code> directory.</p>
-<p>Add dependencies in <code>Cargo.toml</code>:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[dependencies]</span><br><span class="line">lazy_static = &quot;1.4&quot;</span><br><span class="line">antlr-rust = &quot;0.1&quot;</span><br></pre></td></tr></table></figure>
-
-<p>Add a feature and import <code>lazy_static</code> macros to the root module:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#![feature(try_blocks)]</span></span><br><span class="line"><span class="meta">#[macro_use]</span></span><br><span class="line"><span class="keyword">extern</span> crates lazy_static;</span><br></pre></td></tr></table></figure>
-
-<p>Import common and essential things:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> antlr_rust::common_token_stream::CommonTokenStream;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::input_stream::InputStream;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::parser_rule_context::ParserRuleContext;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::tree::&#123;ErrorNode, ParseTreeListener, TerminalNode&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>Import grammar-specific things:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mod</span> csvlexer;</span><br><span class="line"><span class="keyword">mod</span> csvlistener;</span><br><span class="line"><span class="keyword">mod</span> csvparser;</span><br><span class="line"><span class="keyword">use</span> csvlexer::CSVLexer;</span><br><span class="line"><span class="keyword">use</span> csvlistener::CSVListener;</span><br><span class="line"><span class="keyword">use</span> csvparser::*;</span><br></pre></td></tr></table></figure>
-
-<p>Implement <code>ParseTreeListener</code>, a supertraint of <code>CSVListener</code>:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Listener</span></span>;<span class="keyword">impl</span> ParseTreeListener <span class="keyword">for</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">visit_terminal</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, node: &amp;TerminalNode) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">visit_error_node</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, node: &amp;ErrorNode) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_every_rule</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;<span class="keyword">dyn</span> ParserRuleContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_every_rule</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;<span class="keyword">dyn</span> ParserRuleContext) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Implement <code>CSVListener</code>:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> CSVListener <span class="keyword">for</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_hdr</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_hdr</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_row</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_row</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_field</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_field</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Read and parse an input. Note that <code>csvFile</code> in the last line is a rule name in <code>CSV.g4</code>:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> input = <span class="built_in">String</span>::from(</span><br><span class="line"><span class="string">&quot;This, is, a, header</span></span><br><span class="line"><span class="string">This, is, a, row</span></span><br><span class="line"><span class="string">&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> lexer = CSVLexer::new(<span class="built_in">Box</span>::new(InputStream::new(input)));</span><br><span class="line">    <span class="keyword">let</span> token_source = CommonTokenStream::new(lexer);</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> parser = CSVParser::new(<span class="built_in">Box</span>::new(token_source));</span><br><span class="line">    parser.add_parse_listener(<span class="built_in">Box</span>::new(Listener &#123;&#125;));</span><br><span class="line">    <span class="keyword">let</span> result = parser.csvFile();</span><br><span class="line">    <span class="built_in">assert!</span>(result.is_ok());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/gsongsong/antlr4rust_quickstart/commit/1a4fb82e23bf9c5a33ed2298ef875f1fee80151f">here</a>.</p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
 
 <nav id="pagination">
   
@@ -599,6 +598,8 @@
 <div class="widget tag">
   <h3 class="title">Tags</h3>
   <ul class="entry">
+  
+    <li><a href="/tags/3gpp/">3GPP</a><small>1</small></li>
   
     <li><a href="/tags/antlr4/">ANTLR4</a><small>3</small></li>
   
@@ -626,7 +627,13 @@
   
     <li><a href="/tags/intel/">Intel</a><small>1</small></li>
   
+    <li><a href="/tags/nr/">NR</a><small>1</small></li>
+  
+    <li><a href="/tags/nr-dc/">NR-DC</a><small>1</small></li>
+  
     <li><a href="/tags/openapi/">OpenAPI</a><small>1</small></li>
+  
+    <li><a href="/tags/rrc/">RRC</a><small>1</small></li>
   
     <li><a href="/tags/react/">React</a><small>1</small></li>
   
@@ -644,6 +651,8 @@
   
     <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
   
+    <li><a href="/tags/dual-connectivity/">dual connectivity</a><small>1</small></li>
+  
     <li><a href="/tags/email/">email</a><small>1</small></li>
   
     <li><a href="/tags/optimization/">optimization</a><small>1</small></li>
@@ -651,6 +660,8 @@
     <li><a href="/tags/positioning/">positioning</a><small>3</small></li>
   
     <li><a href="/tags/privacy/">privacy</a><small>1</small></li>
+  
+    <li><a href="/tags/telecommunications/">telecommunications</a><small>1</small></li>
   
     <li><a href="/tags/trilateration/">trilateration</a><small>2</small></li>
   
