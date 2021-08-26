@@ -52,6 +52,48 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-axios-with-proxy-and-custom-ssl-certificate" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2021-08-26T14:13:12.000Z"><a href="/2021/08/26/axios-with-proxy-and-custom-ssl-certificate/">2021-08-26</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2021/08/26/axios-with-proxy-and-custom-ssl-certificate/">axios with proxy and custom SSL certificate</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>This article summarizes what made me struggle days.</p>
+<h1><span id="fix-https-proxy-agent-to-support-ca">Fix <code>https-proxy-agent</code> to support CA</span></h1><p>It was originally proposed <a target="_blank" rel="noopener" href="https://github.com/TooTallNate/node-https-proxy-agent/issues/89#issuecomment-688353505">here</a> by <a target="_blank" rel="noopener" href="https://github.com/maslakov">maslakov</a>.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; HttpsProxyAgent, HttpsProxyAgentOptions &#125; <span class="keyword">from</span> <span class="string">&#x27;https-proxy-agent&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; ClientRequest, RequestOptions &#125; <span class="keyword">from</span> <span class="string">&#x27;agent-base&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; Socket &#125; <span class="keyword">from</span> <span class="string">&#x27;net&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">PatchedHttpsProxyAgent</span> <span class="keyword">extends</span> <span class="title">HttpsProxyAgent</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> ca: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">constructor</span>(<span class="params">opts: HttpsProxyAgentOptions</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">super</span>(opts);</span><br><span class="line">    <span class="built_in">this</span>.ca = opts.ca;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> callback(req: ClientRequest, <span class="attr">opts</span>: RequestOptions): <span class="built_in">Promise</span>&lt;Socket&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">super</span>.callback(req, <span class="built_in">Object</span>.assign(opts, &#123; <span class="attr">ca</span>: <span class="built_in">this</span>.ca &#125;));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1><span id="working-prototype">Working prototype</span></h1><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> axios = <span class="built_in">require</span>(<span class="string">&#x27;axios&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> HttpsProxyAgent = <span class="built_in">require</span>(<span class="string">&#x27;https-proxy-agent&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> ca = <span class="built_in">require</span>(<span class="string">&#x27;ssl-root-cas/latest&#x27;</span>).create();</span><br><span class="line"></span><br><span class="line">ca.addFile(certificateFilePath);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> httpsAgent = <span class="keyword">new</span> HttpsProxyAgent(&#123;</span><br><span class="line">  <span class="attr">protocol</span>: <span class="string">&#x27;http&#x27;</span>,</span><br><span class="line">  <span class="attr">host</span>: <span class="string">&#x27;proxy_host&#x27;</span>,</span><br><span class="line">  <span class="attr">port</span>: <span class="number">8080</span>,</span><br><span class="line">  ca,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">axios.defaults.httpsAgent = httpsAgent;</span><br></pre></td></tr></table></figure>
+
+<h1><span id="references">References</span></h1><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/TooTallNate/node-https-proxy-agent/issues/89#issuecomment-688353505">PatchedHttpsProxyAgent</a></li>
+</ol>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
   <article id="post-nr-rrc-changes-on-june-2021" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -528,63 +570,6 @@
 
 
 
-  <article id="post-quick-start-on-antlr4-in-rust-part2" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2020-06-02T00:00:00.000Z"><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2/">2020-06-02</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2/">Quick start on ANTLR4 in Rust - part2</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p><em>This is my note in adopting and learning ANTLR4Rust</em></p>
-<p><strong>Series</strong></p>
-<ul>
-<li><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1">Quick Start on ANTLR4 in Rust — Part1</a></li>
-<li>Quick Start on ANTLR4 in Rust — Part2 (This article)</li>
-<li><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3">Quick Start on ANTLR4 in Rust — Part3</a></li>
-</ul>
-<hr>
-<p>In the previous article, we built the minimal working example walking a parse tree using a listener. In this article, we are going to store a parsed CSV structure into a variable to use in the future.</p>
-<p>Define a CSV structure:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">type</span> <span class="title">Row</span></span> = <span class="built_in">Vec</span>&lt;<span class="built_in">String</span>&gt;;<span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">CSV</span></span> &#123;</span><br><span class="line">    header: Row,</span><br><span class="line">    rows: <span class="built_in">Vec</span>&lt;Row&gt;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Add fields to a listener:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Listener</span></span> &#123;</span><br><span class="line">    csv: <span class="built_in">Box</span>&lt;CSV&gt;,</span><br><span class="line">    add_to_header: <span class="built_in">bool</span>,</span><br><span class="line">    row_to_add: <span class="built_in">Vec</span>&lt;<span class="built_in">String</span>&gt;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>csv</code> will be a resultant CSV structure. <code>add_to_header</code> and <code>row_to_add</code> are internal state variables to generate a CSV structure.</p>
-<p>Implement a listener:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> CSVListener <span class="keyword">for</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_hdr</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;</span><br><span class="line">        <span class="keyword">self</span>.add_to_header = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_hdr</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;</span><br><span class="line">        <span class="keyword">self</span>.csv.header = <span class="keyword">self</span>.row_to_add.to_vec();</span><br><span class="line">        <span class="keyword">self</span>.row_to_add.clear();</span><br><span class="line">        <span class="keyword">self</span>.add_to_header = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_row</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_row</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">self</span>.add_to_header &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">self</span>.csv.rows.push(<span class="keyword">self</span>.row_to_add.to_vec());</span><br><span class="line">        <span class="keyword">self</span>.row_to_add.clear();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_field</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_field</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;</span><br><span class="line">        <span class="keyword">self</span>.row_to_add.push(_ctx.get_text());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Feed an input to a parse and extract the result:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> input = <span class="built_in">String</span>::from(</span><br><span class="line">        <span class="string">&quot;This, is, a, header</span></span><br><span class="line"><span class="string">This, is, a, row</span></span><br><span class="line"><span class="string">&quot;</span>,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">let</span> lexer = CSVLexer::new(<span class="built_in">Box</span>::new(InputStream::new(input)));</span><br><span class="line">    <span class="keyword">let</span> token_source = CommonTokenStream::new(lexer);</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> parser = CSVParser::new(<span class="built_in">Box</span>::new(token_source));</span><br><span class="line">    <span class="keyword">let</span> listener_id = parser.add_parse_listener(<span class="built_in">Box</span>::new(Listener &#123;</span><br><span class="line">        csv: <span class="built_in">Box</span>::new(CSV &#123;</span><br><span class="line">            header: Row::new(),</span><br><span class="line">            rows: <span class="built_in">Vec</span>::new(),</span><br><span class="line">        &#125;),</span><br><span class="line">        add_to_header: <span class="literal">false</span>,</span><br><span class="line">        row_to_add: Row::new(),</span><br><span class="line">    &#125;));</span><br><span class="line">    <span class="keyword">let</span> result = parser.csvFile();</span><br><span class="line">    <span class="built_in">assert!</span>(result.is_ok());</span><br><span class="line">    <span class="keyword">let</span> listener = parser.remove_parse_listener(listener_id);</span><br><span class="line">    <span class="keyword">let</span> csv = listener.csv;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:#?&#125;&quot;</span>, csv);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>A tricky part is that we have to extract <code>csv</code> from <code>listener</code>. And to this end, we have to extract <code>listener</code> with <code>listener_id</code>.</p>
-<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/gsongsong/antlr4rust_quickstart/commit/0bc40c180d782d044097f68b756fdba6c5f82da0">here</a>.</p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
 
 <nav id="pagination">
   
@@ -649,6 +634,8 @@
   
     <li><a href="/tags/rust/">Rust</a><small>3</small></li>
   
+    <li><a href="/tags/ssl-certificate/">SSL certificate</a><small>1</small></li>
+  
     <li><a href="/tags/trek1000/">TREK1000</a><small>1</small></li>
   
     <li><a href="/tags/thrift/">Thrift</a><small>1</small></li>
@@ -658,6 +645,8 @@
     <li><a href="/tags/uwb/">UWB</a><small>2</small></li>
   
     <li><a href="/tags/wi-fi/">Wi-Fi</a><small>1</small></li>
+  
+    <li><a href="/tags/axios/">axios</a><small>1</small></li>
   
     <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
   
@@ -670,6 +659,8 @@
     <li><a href="/tags/positioning/">positioning</a><small>3</small></li>
   
     <li><a href="/tags/privacy/">privacy</a><small>1</small></li>
+  
+    <li><a href="/tags/proxy/">proxy</a><small>1</small></li>
   
     <li><a href="/tags/telecommunications/">telecommunications</a><small>1</small></li>
   

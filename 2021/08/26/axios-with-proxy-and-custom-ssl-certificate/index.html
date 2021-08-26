@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Preventing privacy leak with TuringFonts (substitution cipher) | Jeon, an engineer</title>
+  <title>axios with proxy and custom SSL certificate | Jeon, an engineer</title>
   <meta name="author" content="Seokseong Jeon">
   
-  <meta name="description" content="Download one of web fonts (.woff2) from TuringFonts. Assumed Zebra is used here
-Put the font to the web directory and define the below in a stylesheet">
+  <meta name="description" content="This article summarizes what made me struggle days.
+Fix https-proxy-agent to support CAIt was originally proposed here by maslakov.
+123456789101112131">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="Preventing privacy leak with TuringFonts (substitution cipher)"/>
+  <meta property="og:title" content="axios with proxy and custom SSL certificate"/>
   <meta property="og:site_name" content="Jeon, an engineer"/>
 
   
@@ -54,31 +55,31 @@ Put the font to the web directory and define the below in a stylesheet">
 <div class="clearfix"></div>
 </header>
   <div id="content" class="inner">
-    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-preventing-privacy-leak-with-turingfonts-substitution-cipher" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-axios-with-proxy-and-custom-ssl-certificate" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2020-03-07T00:00:00.000Z"><a href="/2020/03/07/preventing-privacy-leak-with-turingfonts-substitution-cipher/">2020-03-07</a></time>
+        <time class="dt-published" datetime="2021-08-26T14:13:12.000Z"><a href="/2021/08/26/axios-with-proxy-and-custom-ssl-certificate/">2021-08-26</a></time>
       
       
   
-    <h1 class="p-name title" itemprop="headline name">Preventing privacy leak with TuringFonts (substitution cipher)</h1>
+    <h1 class="p-name title" itemprop="headline name">axios with proxy and custom SSL certificate</h1>
   
 
     </header>
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>Download one of web fonts (<code>.woff2</code>) from <a target="_blank" rel="noopener" href="http://jfmdev.github.io/TuringFonts/">TuringFonts</a>. Assumed Zebra is used here</p>
-<p>Put the font to the web directory and define the below in a stylesheet:</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: ArialZebra;</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">&quot;arial_zebra.woff2&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.zebra-substitution</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: ArialZebra</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p>This article summarizes what made me struggle days.</p>
+<h1><span id="fix-https-proxy-agent-to-support-ca">Fix <code>https-proxy-agent</code> to support CA</span></h1><p>It was originally proposed <a target="_blank" rel="noopener" href="https://github.com/TooTallNate/node-https-proxy-agent/issues/89#issuecomment-688353505">here</a> by <a target="_blank" rel="noopener" href="https://github.com/maslakov">maslakov</a>.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; HttpsProxyAgent, HttpsProxyAgentOptions &#125; <span class="keyword">from</span> <span class="string">&#x27;https-proxy-agent&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; ClientRequest, RequestOptions &#125; <span class="keyword">from</span> <span class="string">&#x27;agent-base&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; Socket &#125; <span class="keyword">from</span> <span class="string">&#x27;net&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">PatchedHttpsProxyAgent</span> <span class="keyword">extends</span> <span class="title">HttpsProxyAgent</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> ca: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">constructor</span>(<span class="params">opts: HttpsProxyAgentOptions</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">super</span>(opts);</span><br><span class="line">    <span class="built_in">this</span>.ca = opts.ca;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> callback(req: ClientRequest, <span class="attr">opts</span>: RequestOptions): <span class="built_in">Promise</span>&lt;Socket&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">super</span>.callback(req, <span class="built_in">Object</span>.assign(opts, &#123; <span class="attr">ca</span>: <span class="built_in">this</span>.ca &#125;));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>Assign <code>zebra-substitution</code> class to where it needs</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">&quot;zebra-substitution&quot;</span>&gt;</span>pgalk87@cjzfi.blj<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h1><span id="working-prototype">Working prototype</span></h1><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> axios = <span class="built_in">require</span>(<span class="string">&#x27;axios&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> HttpsProxyAgent = <span class="built_in">require</span>(<span class="string">&#x27;https-proxy-agent&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> ca = <span class="built_in">require</span>(<span class="string">&#x27;ssl-root-cas/latest&#x27;</span>).create();</span><br><span class="line"></span><br><span class="line">ca.addFile(certificateFilePath);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> httpsAgent = <span class="keyword">new</span> HttpsProxyAgent(&#123;</span><br><span class="line">  <span class="attr">protocol</span>: <span class="string">&#x27;http&#x27;</span>,</span><br><span class="line">  <span class="attr">host</span>: <span class="string">&#x27;proxy_host&#x27;</span>,</span><br><span class="line">  <span class="attr">port</span>: <span class="number">8080</span>,</span><br><span class="line">  ca,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">axios.defaults.httpsAgent = httpsAgent;</span><br></pre></td></tr></table></figure>
 
-<p><a target="_blank" rel="noopener" href="https://codepen.io/gsongsong/pen/MWwdMZO">See</a> how it looks.</p>
-<p>TuringFonts also provides <a target="_blank" rel="noopener" href="http://jfmdev.github.io/TuringFonts/encoder.html">Encoder</a> to get a ciphered text.</p>
+<h1><span id="references">References</span></h1><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/TooTallNate/node-https-proxy-agent/issues/89#issuecomment-688353505">PatchedHttpsProxyAgent</a></li>
+</ol>
 
       
     </div>
@@ -88,7 +89,7 @@ Put the font to the web directory and define the below in a stylesheet">
         
   
   <div class="tags">
-    <a href="/tags/privacy/">privacy</a>, <a href="/tags/web-font/">web font</a>
+    <a href="/tags/axios/">axios</a>, <a href="/tags/proxy/">proxy</a>, <a href="/tags/ssl-certificate/">SSL certificate</a>
   </div>
 
         
