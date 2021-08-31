@@ -52,6 +52,48 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-webpack-raw-loader-with-typescript" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2021-08-31T13:53:53.000Z"><a href="/2021/08/31/webpack-raw-loader-with-typescript/">2021-08-31</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2021/08/31/webpack-raw-loader-with-typescript/">webpack raw-loader with TypeScript</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Another struggle of a day. I had difficulties on importing a GraphQL schema definition in TypeScript project with using webpackt raw-loader.</p>
+<p>Declare in <code>webpack.config.js</code> to use <code>raw-loader</code> to import a GraphQL schema definition:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  <span class="attr">module</span>: &#123;</span><br><span class="line">    <span class="attr">rules</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">test</span>: <span class="regexp">/\.graphql$/i</span>, <span class="comment">// Extension which you want to load via raw-loader</span></span><br><span class="line">        use: <span class="string">&#x27;raw-loader&#x27;</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="comment">// omitted</span></span><br><span class="line">    ],</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">resolve</span>: &#123;</span><br><span class="line">    <span class="attr">extensions</span>: [<span class="string">&#x27;.js&#x27;</span>, <span class="string">&#x27;.ts&#x27;</span>], <span class="comment">// Add extension if you want to raw-load without typing extension</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// omitted</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Declare in <code>src/raw-loader.d.ts</code> that an imported GraphQL schema definition is a string:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">declare</span> <span class="built_in">module</span> <span class="string">&quot;*.graphql&quot;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> content: <span class="built_in">string</span>;</span><br><span class="line">  <span class="keyword">export</span> <span class="keyword">default</span> content;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Declare in <code>tsconfig.json</code> so that <code>tsc</code> does not try to compile <code>*.graphql</code> files:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;exclude&quot;</span>: [<span class="string">&quot;*.graphql&quot;</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
   <article id="post-axios-with-proxy-and-custom-ssl-certificate" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -524,52 +566,6 @@
 
 
 
-  <article id="post-quick-start-on-antlr4-in-rust-part3" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2020-06-10T00:00:00.000Z"><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3/">2020-06-10</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3/">Quick start on ANTLR4 in Rust - part3</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p><em>This is my note in adopting and learning ANTLR4Rust</em></p>
-<p><strong>Series</strong></p>
-<ul>
-<li><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1">Quick Start on ANTLR4 in Rust — Part1</a></li>
-<li><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2">Quick Start on ANTLR4 in Rust — Part2</a></li>
-<li>Quick Start on ANTLR4 in Rust — Part3 (This article)</li>
-</ul>
-<hr>
-<p>In the previous article, we implemented a parser with internal state variables. However, if a grammar is huge, it is practically impossible to manage a huge number of state variables. Alternatively, a visitor-like approach can be used.</p>
-<p>In an exit method of the root rule in the Listener, we can grab the current context and its children and call custom parser methods:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">hdr</span></span>(&amp;<span class="keyword">self</span>, ctx: &amp;HdrContextAll) -&gt; Row &#123;</span><br><span class="line">        <span class="keyword">let</span> row_ctx = ctx.row().unwrap();</span><br><span class="line">        <span class="keyword">self</span>.row(&amp;row_ctx)</span><br><span class="line">    &#125;    <span class="function"><span class="keyword">fn</span> <span class="title">row</span></span>(&amp;<span class="keyword">self</span>, ctx: &amp;RowContextAll) -&gt; Row &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut</span> row = Row::new();</span><br><span class="line">        <span class="keyword">let</span> field_ctx_list = ctx.field_all();</span><br><span class="line">        <span class="keyword">for</span> (_i, field_ctx) <span class="keyword">in</span> field_ctx_list.iter().enumerate() &#123;</span><br><span class="line">            <span class="keyword">let</span> field = <span class="keyword">self</span>.field(&amp;field_ctx);</span><br><span class="line">            row.push(field);</span><br><span class="line">        &#125;</span><br><span class="line">        row</span><br><span class="line">    &#125;    <span class="function"><span class="keyword">fn</span> <span class="title">field</span></span>(&amp;<span class="keyword">self</span>, ctx: &amp;FieldContextAll) -&gt; <span class="built_in">String</span> &#123;</span><br><span class="line">        ctx.get_text()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> CSVListener <span class="keyword">for</span> Listener &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">exit_csvFile</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;CsvFileContext) &#123;</span><br><span class="line">        <span class="keyword">let</span> hdr_ctx = ctx.hdr().unwrap();</span><br><span class="line">        <span class="keyword">let</span> header = <span class="keyword">self</span>.hdr(&amp;hdr_ctx);</span><br><span class="line">        <span class="keyword">self</span>.csv.header = header;</span><br><span class="line">        <span class="keyword">let</span> row_ctx_list = ctx.row_all();</span><br><span class="line">        <span class="keyword">for</span> (_i, row_ctx) <span class="keyword">in</span> row_ctx_list.iter().enumerate() &#123;</span><br><span class="line">            <span class="keyword">let</span> row = <span class="keyword">self</span>.row(&amp;row_ctx);</span><br><span class="line">            <span class="keyword">self</span>.csv.rows.push(row);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/gsongsong/antlr4rust_quickstart/commit/541cd68c7587e62263242df5a2998a5e9dff71ce">here</a>.</p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
 
 <nav id="pagination">
   
@@ -640,6 +636,8 @@
   
     <li><a href="/tags/thrift/">Thrift</a><small>1</small></li>
   
+    <li><a href="/tags/typescript/">TypeScript</a><small>1</small></li>
+  
     <li><a href="/tags/uml/">UML</a><small>1</small></li>
   
     <li><a href="/tags/uwb/">UWB</a><small>2</small></li>
@@ -668,7 +666,7 @@
   
     <li><a href="/tags/web-font/">web font</a><small>1</small></li>
   
-    <li><a href="/tags/webpack/">webpack</a><small>1</small></li>
+    <li><a href="/tags/webpack/">webpack</a><small>2</small></li>
   
   </ul>
 </div>
