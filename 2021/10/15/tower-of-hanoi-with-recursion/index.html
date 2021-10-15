@@ -6,7 +6,7 @@
   <title>Tower of Hanoi with recursion | Jeon, an engineer</title>
   <meta name="author" content="Seokseong Jeon">
   
-  <meta name="description" content="Problem statementAssume there are 3 towers and (D) disks. And all disks are place at the first tower in a descending order in terms of disk number. It">
+  <meta name="description" content="Problem statementAssume there are 3 towers and \(D\) disks. And all disks are place at the first tower in a descending order in terms of disk number. ">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -69,25 +69,25 @@
     </header>
     <div class="e-content entry" itemprop="articleBody">
       
-        <h1><span id="problem-statement">Problem statement</span></h1><p>Assume there are 3 towers and (D) disks. And all disks are place at the first tower in a descending order in terms of disk number. It can be illustrated as follows:</p>
+        <h1><span id="problem-statement">Problem statement</span></h1><p>Assume there are 3 towers and \(D\) disks. And all disks are place at the first tower in a descending order in terms of disk number. It can be illustrated as follows:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">     [1]             |              |</span><br><span class="line">    [ 2 ]            |              |</span><br><span class="line">      :              |              |</span><br><span class="line"> [   D-1   ]         |              |</span><br><span class="line">[     D     ]        |              |</span><br><span class="line">-----------------------------------------</span><br><span class="line">    Tower 1        Tower 2        Tower 3</span><br></pre></td></tr></table></figure>
 
 <p>The objective is to find out the order of movement to move the entire disks to another tower with constrains:</p>
 <ul>
 <li>One only disk can be moved at a time</li>
-<li>Disk (X) cannot be placed under disk (Y), where (X) is greater than (Y)</li>
+<li>Disk \(X\) cannot be placed under disk \(Y\), where \(X\) is greater than \(Y\)</li>
 </ul>
-<h1><span id="approach">Approach</span></h1><p>To move disk (X) from tower (A) to (C), three steps as follows:</p>
+<h1><span id="approach">Approach</span></h1><p>To move disk \(X\) from tower \(A\) to \(C\), three steps as follows:</p>
 <ol>
-<li>Move disks 1 to (X-1) from tower (A) to (B)</li>
-<li>Move disk (X) from tower (A) to (C)</li>
-<li>Move disks 1 to (X-1) from tower (B) to (C)</li>
+<li>Move disks 1 to \(X-1\) from tower \(A\) to \(B\)</li>
+<li>Move disk \(X\) from tower \(A\) to \(C\)</li>
+<li>Move disks 1 to \(X-1\) from tower \(B\) to \(C\)</li>
 </ol>
 <p>Steps (1) and (3) are not a single atomic operation and they can be performed recursively:</p>
 <ol>
-<li>Move disks 1 to (X-2) from tower (A) to (C)</li>
-<li>Move disk (X-1) from tower (A) to (B)</li>
-<li>Move disks 1 to (X-2) from tower (C) to (B)</li>
+<li>Move disks 1 to \(X-2\) from tower \(A\) to \(C\)</li>
+<li>Move disk \(X-1\) from tower \(A\) to \(B\)</li>
+<li>Move disks 1 to \(X-2\) from tower \(C\) to \(B\)</li>
 </ol>
 <p>If there is only one disk to move, step (1) and step (3) can be skipped.</p>
 <h1><span id="implementation">Implementation</span></h1><p>We can define a function <code>moveDisks()</code> whose inputs are the number of disks to be moved, tower number that the disks are currently located and tower number that the disks to be moved to:</p>
