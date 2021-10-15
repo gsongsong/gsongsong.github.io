@@ -52,6 +52,59 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-reading-ranging-data-from-decawave-evk1000" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2017-05-14T00:00:00.000Z"><a href="/2017/05/14/reading-ranging-data-from-decawave-evk1000/">2017-05-14</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2017/05/14/reading-ranging-data-from-decawave-evk1000/">Reading ranging data from DecaWave EVK1000</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <h2><span id="decawave-evk1000-and-trek1000">DecaWave EVK1000 and TREK1000</span></h2><p>EVK1000 and TREK1000 are Two-way Ranging Evaluation Kit for DecaWave’s UWB DW1000 chip. You can see and evaluate a ranging result on a screen of each of them. However, to see a positioning result, you need to connect one of them with a PC and use DecaWave’s dedicated software only on Windows. Here’s how to read data from EVK1000 without the dedicated software</p>
+<h2><span id="preparing-a-driver">Preparing a Driver</span></h2><p>This kit has a COM (serial) port. But this port is wrapped with USB interface and operates with a virtual COM port driver</p>
+<ul>
+<li>On Windows, a driver for this (STM32 Virtual ComPort in FS Mode v1.4.0) can be downloaded at here. After downloading and extracting the file, run <code>&lt;OS&gt;/dpinst_&lt;arch&gt;</code>.exe where <code>&lt;OS&gt;</code> and <code>&lt;arch&gt;</code> are your OS and architecture, respectively. A related thread can be found <a target="_blank" rel="noopener" href="http://forum.espruino.com/conversations/290299/">here</a></li>
+<li>On Linux and macOS, when a board is connected, a driver will be automatically loaded</li>
+</ul>
+<p>For more detail, please refer <a target="_blank" rel="noopener" href="http://www.ftdichip.com/Drivers/VCP.htm">FTDI Chip</a></p>
+<h2><span id="reading-and-parsing-ranging-data">Reading and Parsing Ranging Data</span></h2><p>Configure anchors and a tag by flipping switches as instruction says, and connect an anchor or a tag with a PC. Since it uses a virtual COM port, serial communication parameters are automatically configured and you don’t need to worry about it</p>
+<p>When connection is successful, you can see outputs on a serial port terminal as the following:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mr 01 000004d1 00000000 00000000 00000000 001e 20 403c403c t7:0</span><br><span class="line">mc 01 0000058c 00000000 00000000 00000000 001f 21 00003fe5 t7:0</span><br><span class="line">mr 01 000004ba 00000000 00000000 00000000 001f 21 403c403c t7:0</span><br><span class="line">mc 01 0000059a 00000000 00000000 00000000 0020 22 000040fd t7:0</span><br><span class="line">mr 01 000004c8 00000000 00000000 00000000 0020 22 403c403c t7:0</span><br><span class="line">mc 01 00000579 00000000 00000000 00000000 0021 23 00004215 t7:0</span><br><span class="line">mr 01 000004a7 00000000 00000000 00000000 0021 23 403c403c t7:0</span><br><span class="line">mc 01 0000059a 00000000 00000000 00000000 0022 24 0000432d t7:0</span><br><span class="line">mr 01 000004c8 00000000 00000000 00000000 0022 24 403c403c t7:0</span><br><span class="line">mc 01 00000574 00000000 00000000 00000000 0023 25 00004445 t7:0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>Here, important columns are from the 3rd to 6th, 7th, 8th columns</p>
+<ul>
+<li>The 3rd to 6th columns represent a range measurement from each anchor 0 to 3 in hexadecimal<ul>
+<li>For example, <code>000004d1</code> represents <code>0x4d1</code> or <code>1233</code>, which is 1.233 m.</li>
+</ul>
+</li>
+<li>The 7th column represents a sequence number</li>
+<li>The 8th column represents a ranging sequence number</li>
+</ul>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
   <article id="post-modifying-regulations-in-intel-wi-fi-card-eeprom" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -188,6 +241,8 @@
   
     <li><a href="/tags/wi-fi/">Wi-Fi</a><small>1</small></li>
   
+    <li><a href="/tags/algorithm/">algorithm</a><small>1</small></li>
+  
     <li><a href="/tags/axios/">axios</a><small>1</small></li>
   
     <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
@@ -202,7 +257,11 @@
   
     <li><a href="/tags/privacy/">privacy</a><small>1</small></li>
   
+    <li><a href="/tags/problem-solving/">problem solving</a><small>1</small></li>
+  
     <li><a href="/tags/proxy/">proxy</a><small>1</small></li>
+  
+    <li><a href="/tags/recursion/">recursion</a><small>1</small></li>
   
     <li><a href="/tags/telecommunications/">telecommunications</a><small>1</small></li>
   

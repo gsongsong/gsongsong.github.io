@@ -52,6 +52,106 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-tower-of-hanoi-with-recursion" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2021-10-15T04:36:29.000Z"><a href="/2021/10/15/tower-of-hanoi-with-recursion/">2021-10-15</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2021/10/15/tower-of-hanoi-with-recursion/">Tower of Hanoi with recursion</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <h1><span id="problem-statement">Problem statement</span></h1><p>Assume there are 3 towers and (D) disks. And all disks are place at the first tower in a descending order in terms of disk number. It can be illustrated as follows:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">     [1]             |              |</span><br><span class="line">    [ 2 ]            |              |</span><br><span class="line">      :              |              |</span><br><span class="line"> [   D-1   ]         |              |</span><br><span class="line">[     D     ]        |              |</span><br><span class="line">-----------------------------------------</span><br><span class="line">    Tower 1        Tower 2        Tower 3</span><br></pre></td></tr></table></figure>
+
+<p>The objective is to find out the order of movement to move the entire disks to another tower with constrains:</p>
+<ul>
+<li>One only disk can be moved at a time</li>
+<li>Disk (X) cannot be placed under disk (Y), where (X) is greater than (Y)</li>
+</ul>
+<h1><span id="approach">Approach</span></h1><p>To move disk (X) from tower (A) to (C), three steps as follows:</p>
+<ol>
+<li>Move disks 1 to (X-1) from tower (A) to (B)</li>
+<li>Move disk (X) from tower (A) to (C)</li>
+<li>Move disks 1 to (X-1) from tower (B) to (C)</li>
+</ol>
+<p>Steps (1) and (3) are not a single atomic operation and they can be performed recursively:</p>
+<ol>
+<li>Move disks 1 to (X-2) from tower (A) to (C)</li>
+<li>Move disk (X-1) from tower (A) to (B)</li>
+<li>Move disks 1 to (X-2) from tower (C) to (B)</li>
+</ol>
+<p>If there is only one disk to move, step (1) and step (3) can be skipped.</p>
+<h1><span id="implementation">Implementation</span></h1><p>We can define a function <code>moveDisks()</code> whose inputs are the number of disks to be moved, tower number that the disks are currently located and tower number that the disks to be moved to:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">moveDisks</span><span class="params">(<span class="keyword">int</span> nDisks, <span class="keyword">int</span> from, <span class="keyword">int</span> to)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>It can recursively call the function itself:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">moveDisks</span><span class="params">(<span class="keyword">int</span> nDisks, <span class="keyword">int</span> from, <span class="keyword">int</span> to)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> intermediate = <span class="number">6</span> - from - to;</span><br><span class="line">  <span class="keyword">if</span> (nDisks &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">moveDisks</span>(nDisks - <span class="number">1</span>, from, intermediate);</span><br><span class="line">  &#125;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Move disk &quot;</span> &lt;&lt; nDisks &lt;&lt; <span class="string">&quot; from tower &quot;</span> &lt;&lt; from &lt;&lt; <span class="string">&quot; to tower &quot;</span> &lt;&lt; to &lt;&lt; endl;</span><br><span class="line">  <span class="keyword">if</span> (nDisks &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">moveDisks</span>(nDisks - <span class="number">1</span>, intermediate, to);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Here <code>int intermediate = 6 - from - to;</code> is a tricky part. This variable represents the number of intermediate tower to move <code>nDisks - 1</code> disks. If each tower is numbered with 1, 2, and 3 then relationships between <code>from</code>, <code>to</code> and <code>intermediate</code> can be determined as follows and the forementioned equation reflects these relationships:</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+<th>Intermediate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>1</td>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
   <article id="post-webpack-raw-loader-with-typescript" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -518,54 +618,6 @@
 
 
 
-  <article id="post-installing-electron-manually-for-electron-builder" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2020-08-11T00:00:00.000Z"><a href="/2020/08/11/installing-electron-manually-for-electron-builder/">2020-08-11</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2020/08/11/installing-electron-manually-for-electron-builder/">Installing Electron manually for electron-builder</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>This article tries to resolve an uncommon issue when you encounter the following error and it cannot be resolved automatically, e.g. behind proxy, etc.:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: Electron failed to install correctly, please delete node_modules/electron and try installing again</span><br></pre></td></tr></table></figure>
-
-<p>Download the right version (with consideration of <code>package.json</code>) of Electron from <a target="_blank" rel="noopener" href="https://github.com/electron/electron/releases">https://github.com/electron/electron/releases</a></p>
-<p>Unpack the downloaded Electron and put all files under <code>node_modules/electron/dist</code>.</p>
-<p>Create <code>path.txt</code> file under <code>node_modules/electron</code> with the following content:</p>
-<ul>
-<li>Windows: <code>electron.exe</code></li>
-<li>Linux: <code>electron</code></li>
-<li>macOS: <code>Electron.app/Contents/MacOS/Electron</code></li>
-</ul>
-<p><em>Note: Make sure there is no whitespace characters (including a newline character) after the filename. This is a problem that I struggled for minutes and hours.</em></p>
-<h2><span id="references">References</span></h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/electron/electron-rebuild/issues/39">spawn dist/electron.exe ENOENT #39</a></li>
-</ul>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
 
 <nav id="pagination">
   
@@ -644,6 +696,8 @@
   
     <li><a href="/tags/wi-fi/">Wi-Fi</a><small>1</small></li>
   
+    <li><a href="/tags/algorithm/">algorithm</a><small>1</small></li>
+  
     <li><a href="/tags/axios/">axios</a><small>1</small></li>
   
     <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
@@ -658,7 +712,11 @@
   
     <li><a href="/tags/privacy/">privacy</a><small>1</small></li>
   
+    <li><a href="/tags/problem-solving/">problem solving</a><small>1</small></li>
+  
     <li><a href="/tags/proxy/">proxy</a><small>1</small></li>
+  
+    <li><a href="/tags/recursion/">recursion</a><small>1</small></li>
   
     <li><a href="/tags/telecommunications/">telecommunications</a><small>1</small></li>
   
