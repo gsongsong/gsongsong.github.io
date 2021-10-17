@@ -69,7 +69,7 @@
     </header>
     <div class="e-content entry" itemprop="articleBody">
       
-        <h1><span id="problem-statement">Problem statement</span></h1><p>Assume there are 3 towers and \(D\) disks. And all disks are place at the first tower in a descending order in terms of disk number. It can be illustrated as follows:</p>
+        <h2><span id="problem-statement">Problem statement</span></h2><p>Assume there are 3 towers and \(D\) disks. And all disks are place at the first tower in a descending order in terms of disk number. It can be illustrated as follows:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">     [1]             |              |</span><br><span class="line">    [ 2 ]            |              |</span><br><span class="line">      :              |              |</span><br><span class="line"> [   D-1   ]         |              |</span><br><span class="line">[     D     ]        |              |</span><br><span class="line">-----------------------------------------</span><br><span class="line">    Tower 1        Tower 2        Tower 3</span><br></pre></td></tr></table></figure>
 
 <p>The objective is to find out the order of movement to move the entire disks to another tower with constrains:</p>
@@ -77,7 +77,7 @@
 <li>One only disk can be moved at a time</li>
 <li>Disk \(X\) cannot be placed under disk \(Y\), where \(X\) is greater than \(Y\)</li>
 </ul>
-<h1><span id="approach">Approach</span></h1><p>To move disk \(X\) from tower \(A\) to \(C\), three steps as follows:</p>
+<h2><span id="approach">Approach</span></h2><p>To move disk \(X\) from tower \(A\) to \(C\), three steps as follows:</p>
 <ol>
 <li>Move disks 1 to \(X-1\) from tower \(A\) to \(B\)</li>
 <li>Move disk \(X\) from tower \(A\) to \(C\)</li>
@@ -90,7 +90,7 @@
 <li>Move disks 1 to \(X-2\) from tower \(C\) to \(B\)</li>
 </ol>
 <p>If there is only one disk to move, step (1) and step (3) can be skipped.</p>
-<h1><span id="implementation">Implementation</span></h1><p>We can define a function <code>moveDisks()</code> whose inputs are the number of disks to be moved, tower number that the disks are currently located and tower number that the disks to be moved to:</p>
+<h2><span id="implementation">Implementation</span></h2><p>We can define a function <code>moveDisks()</code> whose inputs are the number of disks to be moved, tower number that the disks are currently located and tower number that the disks to be moved to:</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">moveDisks</span><span class="params">(<span class="keyword">int</span> nDisks, <span class="keyword">int</span> from, <span class="keyword">int</span> to)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>It can recursively call the function itself:</p>
@@ -136,7 +136,7 @@
 <td>3</td>
 </tr>
 </tbody></table>
-<h1><span id="test-result">Test result</span></h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">3</span><br><span class="line">Move disk 1 from tower 1 to tower 3</span><br><span class="line">Move disk 2 from tower 1 to tower 2</span><br><span class="line">Move disk 1 from tower 3 to tower 2</span><br><span class="line">Move disk 3 from tower 1 to tower 3</span><br><span class="line">Move disk 1 from tower 2 to tower 1</span><br><span class="line">Move disk 2 from tower 2 to tower 3</span><br><span class="line">Move disk 1 from tower 1 to tower 3</span><br></pre></td></tr></table></figure>
+<h2><span id="test-result">Test result</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">3</span><br><span class="line">Move disk 1 from tower 1 to tower 3</span><br><span class="line">Move disk 2 from tower 1 to tower 2</span><br><span class="line">Move disk 1 from tower 3 to tower 2</span><br><span class="line">Move disk 3 from tower 1 to tower 3</span><br><span class="line">Move disk 1 from tower 2 to tower 1</span><br><span class="line">Move disk 2 from tower 2 to tower 3</span><br><span class="line">Move disk 1 from tower 1 to tower 3</span><br></pre></td></tr></table></figure>
 
       
     </div>
