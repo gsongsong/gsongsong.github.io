@@ -75,6 +75,9 @@
 
 <p><code>arangod.conf</code>:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># Omitted unchanged part</span><br><span class="line"></span><br><span class="line">[javascript]</span><br><span class="line"># startup-directory = @ROOTDIR@/usr/share/arangodb3/js</span><br><span class="line"># If @ROOTDIR@ does not work so that `startup-directory` is incorrect, use the following:</span><br><span class="line">startup-directory = &lt;ArangoDB installation path&gt;/usr/share/arangodb3/js</span><br><span class="line"></span><br><span class="line"># Omitted unchanged part</span><br></pre></td></tr></table></figure>
+
+<p><em>One thing is unresolved that <code>pm2 stop</code> or <code>pm2 delete</code> are not properly killing <code>arangod</code>. I will update later if there is a way…</em></p>
+
       
     </div>
     <footer>
