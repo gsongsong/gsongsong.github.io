@@ -52,6 +52,43 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-running-arangod-via-pm2" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2021-12-11T17:26:00.000Z"><a href="/2021/12/11/running-arangod-via-pm2/">2021-12-11</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2021/12/11/running-arangod-via-pm2/">Running arangod via PM2</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p><code>ecosystem.config.js</code>:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  <span class="attr">apps</span> : [&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;db&#x27;</span>,</span><br><span class="line">    <span class="attr">script</span>: <span class="string">&#x27;arangod&#x27;</span>,</span><br><span class="line">    <span class="attr">interpreter</span>: <span class="string">&#x27;none&#x27;</span>,</span><br><span class="line">    <span class="attr">cwd</span>: <span class="string">&#x27;&lt;ArangoDB installation path&gt;&#x27;</span>,</span><br><span class="line">    <span class="attr">args</span>: <span class="string">&#x27;-c &lt;arangod.conf path&gt;&#x27;</span>,</span><br><span class="line">  &#125;],</span><br></pre></td></tr></table></figure>
+
+<p><code>arangod.conf</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># Omitted unchanged part</span><br><span class="line"></span><br><span class="line">[javascript]</span><br><span class="line"># startup-directory = @ROOTDIR@/usr/share/arangodb3/js</span><br><span class="line"># If @ROOTDIR@ does not work so that `startup-directory` is incorrect, use the following:</span><br><span class="line">startup-directory = &lt;ArangoDB installation path&gt;/usr/share/arangodb3/js</span><br><span class="line"></span><br><span class="line"># Omitted unchanged part</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
   <article id="post-tower-of-hanoi-with-recursion" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -571,54 +608,6 @@
 
 
 
-  <article id="post-embedding-worker-in-electron-app-using-webpack-and-electron-builder" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2020-09-22T00:00:00.000Z"><a href="/2020/09/22/embedding-worker-in-electron-app-using-webpack-and-electron-builder/">2020-09-22</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2020/09/22/embedding-worker-in-electron-app-using-webpack-and-electron-builder/">Embedding worker in Electron app using Webpack and electron-builder</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p><em>Disclaimer: as per electron-boilerplate</em></p>
-<p>Make webpack bundle your worker code. I’ll skip the <a target="_blank" rel="noopener" href="https://gist.github.com/gsongsong/02b93857e83b770554017c0566510371">entire code</a> here because it’s too long.</p>
-<p>Remeber the output path</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">output</span>: &#123;</span><br><span class="line">    <span class="attr">path</span>: path.join(__dirname, <span class="string">&#x27;..&#x27;</span>),</span><br><span class="line">    <span class="attr">filename</span>: <span class="string">&#x27;./app/dist/worker.js&#x27;</span>,</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Make electron-builder copy your worker bundle file .</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;build&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;files&quot;</span>: [</span><br><span class="line">      <span class="string">&quot;dist/&quot;</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>This will place your worker bunlde file <em>inside</em> <code>resources/app.asar</code>.</p>
-<p>Adjust worker path and working directory for <code>fork</code> in <code>main.dev.ts</code>.</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> workerPath =</span><br><span class="line">  process.env.NODE_ENV === <span class="string">&#x27;development&#x27;</span></span><br><span class="line">    ? <span class="string">&#x27;app/worker.js&#x27;</span></span><br><span class="line">    : <span class="string">&#x27;app.asar/dist/worker.js&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> workerCwd =</span><br><span class="line">  process.env.NODE_ENV === <span class="string">&#x27;development&#x27;</span></span><br><span class="line">    ? <span class="literal">undefined</span></span><br><span class="line">    : join(__dirname, <span class="string">&#x27;..&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> worker = fork(workerPath, &#123; <span class="attr">cwd</span>: workerCwd &#125;);</span><br></pre></td></tr></table></figure>
-
-<h2><span id="references">References</span></h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/electron/electron/issues/2708">Cannot child_process.fork() when inside ASAR #2708</a></li>
-</ul>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
 
 <nav id="pagination">
   
@@ -651,7 +640,7 @@
   
     <li><a href="/tags/ant-design/">Ant Design</a><small>1</small></li>
   
-    <li><a href="/tags/arangodb/">ArangoDB</a><small>2</small></li>
+    <li><a href="/tags/arangodb/">ArangoDB</a><small>3</small></li>
   
     <li><a href="/tags/dw1000/">DW1000</a><small>1</small></li>
   
@@ -676,6 +665,8 @@
     <li><a href="/tags/nr-dc/">NR-DC</a><small>1</small></li>
   
     <li><a href="/tags/openapi/">OpenAPI</a><small>1</small></li>
+  
+    <li><a href="/tags/pm2/">PM2</a><small>1</small></li>
   
     <li><a href="/tags/rrc/">RRC</a><small>1</small></li>
   
