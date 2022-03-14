@@ -28,7 +28,7 @@
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="generator" content="Hexo 6.1.0"></head>
 
 
 <body>
@@ -91,10 +91,10 @@
 </ol>
 <p>If there is only one disk to move, step (1) and step (3) can be skipped.</p>
 <h2><span id="implementation">Implementation</span></h2><p>We can define a function <code>moveDisks()</code> whose inputs are the number of disks to be moved, tower number that the disks are currently located and tower number that the disks to be moved to:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">moveDisks</span><span class="params">(<span class="keyword">int</span> nDisks, <span class="keyword">int</span> from, <span class="keyword">int</span> to)</span></span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">moveDisks</span><span class="params">(<span class="type">int</span> nDisks, <span class="type">int</span> from, <span class="type">int</span> to)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>It can recursively call the function itself:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">moveDisks</span><span class="params">(<span class="keyword">int</span> nDisks, <span class="keyword">int</span> from, <span class="keyword">int</span> to)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> intermediate = <span class="number">6</span> - from - to;</span><br><span class="line">  <span class="keyword">if</span> (nDisks &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">moveDisks</span>(nDisks - <span class="number">1</span>, from, intermediate);</span><br><span class="line">  &#125;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Move disk &quot;</span> &lt;&lt; nDisks &lt;&lt; <span class="string">&quot; from tower &quot;</span> &lt;&lt; from &lt;&lt; <span class="string">&quot; to tower &quot;</span> &lt;&lt; to &lt;&lt; endl;</span><br><span class="line">  <span class="keyword">if</span> (nDisks &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">moveDisks</span>(nDisks - <span class="number">1</span>, intermediate, to);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">moveDisks</span><span class="params">(<span class="type">int</span> nDisks, <span class="type">int</span> from, <span class="type">int</span> to)</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> intermediate = <span class="number">6</span> - from - to;</span><br><span class="line">  <span class="keyword">if</span> (nDisks &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">moveDisks</span>(nDisks - <span class="number">1</span>, from, intermediate);</span><br><span class="line">  &#125;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Move disk &quot;</span> &lt;&lt; nDisks &lt;&lt; <span class="string">&quot; from tower &quot;</span> &lt;&lt; from &lt;&lt; <span class="string">&quot; to tower &quot;</span> &lt;&lt; to &lt;&lt; endl;</span><br><span class="line">  <span class="keyword">if</span> (nDisks &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">moveDisks</span>(nDisks - <span class="number">1</span>, intermediate, to);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>Here <code>int intermediate = 6 - from - to;</code> is a tricky part. This variable represents the number of intermediate tower to move <code>nDisks - 1</code> disks. If each tower is numbered with 1, 2, and 3 then relationships between <code>from</code>, <code>to</code> and <code>intermediate</code> can be determined as follows and the forementioned equation reflects these relationships:</p>
 <table>
@@ -300,7 +300,7 @@
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2021 Seokseong Jeon
+  &copy; 2022 Seokseong Jeon
   
 </div>
 <div class="clearfix"></div></footer>

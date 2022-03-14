@@ -28,7 +28,7 @@
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="generator" content="Hexo 6.1.0"></head>
 
 
 <body>
@@ -83,8 +83,8 @@
 </li>
 <li>Arduino Pro Mini<ul>
 <li>It is required due to similar reasons of anchors</li>
-<li>It receives commands from Raspberry Pi and executes the corresponding process<br>Processes are:<ul>
-<li>Probing anchors nearby and exchanging series of frames with each anchor<br>to measure distance</li>
+<li>It receives commands from Raspberry Pi and executes the corresponding process<br>  Processes are:<ul>
+<li>Probing anchors nearby and exchanging series of frames with each anchor<br>  to measure distance</li>
 <li>Reporting probed anchors and measured distance values</li>
 </ul>
 </li>
@@ -93,7 +93,7 @@
 </ul>
 </li>
 <li>Anchors<ul>
-<li>They are deployed in a site of interest and their 2D/3D coordinates are known</li>
+<li>They are deployed in a site of interest and their 2D&#x2F;3D coordinates are known</li>
 <li>They are implemented on Arduino Pro Mini for the following reasons:<ul>
 <li>Arduino Pro Mini’s low power consumption</li>
 <li>Anchor’s fast response requirement (order of milliseconds)</li>
@@ -111,7 +111,7 @@
 
 <p>When a Raspberry Pi commands via I2C to scan, it goes into <code>SCAN</code> state and broadcasts a <code>PING</code> message. Going into <code>PONG</code> state immediately, it waits for <code>PONG</code> messages from anchors nearby for a certain duration. I set it to 100 ms.</p>
 <p>If it discovers 3 or more anchors during the <code>PONG</code> state, it goes into <code>ROUNDROBIN</code> state. It exchanges 4 messages with each discovered anchor sequentially, i.e. <code>POLL</code> to an anchor, <code>POLL_ACK</code> from an anchor, <code>RANGE</code> to an anchor, and <code>RANGE_REPORT</code> from an anchor. After sending <code>POLL</code> and <code>RANGE</code> message, it waits for a response message for a certain timeout of 10 ms.</p>
-<p>After 4 messages are exchanged with each anchor, it calculates distance between an anchor using Tx/Rx timestamp. It adopts two-way ranging algorithm, which is a bit computational intensive, but I think it is not that much intensive. For more information about two-way ranging, please refer the official appliclation note <a target="_blank" rel="noopener" href="https://decawave.com/sites/default/files/aps013_dw1000_and_two_way_ranging_v2.2.pdf">APS013 by DecaWave</a>.</p>
+<p>After 4 messages are exchanged with each anchor, it calculates distance between an anchor using Tx&#x2F;Rx timestamp. It adopts two-way ranging algorithm, which is a bit computational intensive, but I think it is not that much intensive. For more information about two-way ranging, please refer the official appliclation note <a target="_blank" rel="noopener" href="https://decawave.com/sites/default/files/aps013_dw1000_and_two_way_ranging_v2.2.pdf">APS013 by DecaWave</a>.</p>
 <h3><span id="state-machine-anchor">State Machine: Anchor</span></h3><p>A state diagram of an anchor is simple:</p>
 <img src="/2017/08/24/positioning-system-using-decawave-dw1000/state-tag.png" class>
 
@@ -288,7 +288,7 @@
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2021 Seokseong Jeon
+  &copy; 2022 Seokseong Jeon
   
 </div>
 <div class="clearfix"></div></footer>

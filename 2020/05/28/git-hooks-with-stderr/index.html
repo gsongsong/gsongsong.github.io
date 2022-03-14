@@ -28,7 +28,7 @@
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="generator" content="Hexo 6.1.0"></head>
 
 
 <body>
@@ -79,8 +79,8 @@
 <p><strong>PowerShell</strong></p>
 <figure class="highlight ps"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$errFile</span> = <span class="built_in">New-TemporaryFile</span></span><br><span class="line">command &gt; /dev/null <span class="number">2</span>&gt;<span class="variable">$errFile</span></span><br><span class="line"><span class="variable">$err</span> = <span class="built_in">Get-Content</span> <span class="variable">$errFile</span></span><br><span class="line"><span class="keyword">If</span> (<span class="variable">$err</span>.Length <span class="operator">-ne</span> <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="keyword">Exit</span> <span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">Exit</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
 
-<p><strong>Unix/Linux shell</strong></p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">errFile = $(mktemp)</span><br><span class="line"><span class="built_in">command</span> &gt; /dev/null 2&gt;<span class="variable">$errFile</span></span><br><span class="line"><span class="variable">$l</span> = wc -l <span class="variable">$errFile</span></span><br><span class="line"><span class="keyword">if</span> [<span class="variable">$l</span> -ne 0]; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
+<p><strong>Unix&#x2F;Linux shell</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">errFile = $(<span class="built_in">mktemp</span>)</span><br><span class="line"><span class="built_in">command</span> &gt; /dev/null 2&gt;<span class="variable">$errFile</span></span><br><span class="line"><span class="variable">$l</span> = <span class="built_in">wc</span> -l <span class="variable">$errFile</span></span><br><span class="line"><span class="keyword">if</span> [<span class="variable">$l</span> -ne 0]; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
       
     </div>
     <footer>
@@ -243,7 +243,7 @@
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2021 Seokseong Jeon
+  &copy; 2022 Seokseong Jeon
   
 </div>
 <div class="clearfix"></div></footer>

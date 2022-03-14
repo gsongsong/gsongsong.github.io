@@ -29,7 +29,7 @@
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="generator" content="Hexo 6.1.0"></head>
 
 
 <body>
@@ -71,7 +71,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p><code>ecosystem.config.js</code>:</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  <span class="attr">apps</span> : [&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;db&#x27;</span>,</span><br><span class="line">    <span class="attr">script</span>: <span class="string">&#x27;arangod&#x27;</span>,</span><br><span class="line">    <span class="attr">interpreter</span>: <span class="string">&#x27;none&#x27;</span>,</span><br><span class="line">    <span class="attr">cwd</span>: <span class="string">&#x27;&lt;ArangoDB installation path&gt;&#x27;</span>,</span><br><span class="line">    <span class="attr">args</span>: <span class="string">&#x27;-c &lt;arangod.conf path&gt;&#x27;</span>,</span><br><span class="line">  &#125;],</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  apps : [&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;db&#x27;</span>,</span><br><span class="line">    <span class="attr">script</span>: <span class="string">&#x27;arangod&#x27;</span>,</span><br><span class="line">    <span class="attr">interpreter</span>: <span class="string">&#x27;none&#x27;</span>,</span><br><span class="line">    <span class="attr">cwd</span>: <span class="string">&#x27;&lt;ArangoDB installation path&gt;&#x27;</span>,</span><br><span class="line">    <span class="attr">args</span>: <span class="string">&#x27;-c &lt;arangod.conf path&gt;&#x27;</span>,</span><br><span class="line">  &#125;],</span><br></pre></td></tr></table></figure>
 
 <p><code>arangod.conf</code>:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># Omitted unchanged part</span><br><span class="line"></span><br><span class="line">[javascript]</span><br><span class="line"># startup-directory = @ROOTDIR@/usr/share/arangodb3/js</span><br><span class="line"># If @ROOTDIR@ does not work so that `startup-directory` is incorrect, use the following:</span><br><span class="line">startup-directory = &lt;ArangoDB installation path&gt;/usr/share/arangodb3/js</span><br><span class="line"></span><br><span class="line"># Omitted unchanged part</span><br></pre></td></tr></table></figure>
@@ -240,7 +240,7 @@
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2021 Seokseong Jeon
+  &copy; 2022 Seokseong Jeon
   
 </div>
 <div class="clearfix"></div></footer>
