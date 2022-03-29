@@ -52,6 +52,51 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-using-word-extractor-on-browser" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2022-03-29T08:24:20.000Z"><a href="/2022/03/29/using-word-extractor-on-browser/">2022-03-29</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2022/03/29/using-word-extractor-on-browser/">Using word-extractor on browser</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Install <a target="_blank" rel="noopener" href="https://www.npmjs.com/package/word-extractor">word-extractor</a> and blob-to-buffer:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save word-extractor blob-to-buffer</span><br></pre></td></tr></table></figure>
+
+<p>Install browserify dependendcies:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save assert buffer events path-browserify process stream-browserify util browserify-zlib</span><br></pre></td></tr></table></figure>
+
+<p>Add webpack fallback configuration:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="comment">// omitted</span></span><br><span class="line">  <span class="attr">resolve</span>: &#123;</span><br><span class="line">    <span class="attr">fallback</span>: &#123;</span><br><span class="line">      <span class="attr">assert</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;assert&#x27;</span>),</span><br><span class="line">      <span class="attr">buffer</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;buffer&#x27;</span>),</span><br><span class="line">      <span class="attr">events</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;events&#x27;</span>),</span><br><span class="line">      <span class="attr">path</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;path-browserify&#x27;</span>),</span><br><span class="line">      <span class="attr">process</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;process/browser&#x27;</span>),</span><br><span class="line">      <span class="attr">stream</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;stream-browserify&#x27;</span>),</span><br><span class="line">      <span class="attr">util</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;util&#x27;</span>),</span><br><span class="line">      <span class="attr">zlib</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;browserify-zlib&#x27;</span>),</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Read a file with <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/File">File API</a> and extract from it</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> blobToBuffer = <span class="built_in">require</span>(<span class="string">&#x27;blob-to-buffer&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// acquire file (`File` object) somehow</span></span><br><span class="line"><span class="title function_">blobToBuffer</span>(file, <span class="function">(<span class="params">error, buffer</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (error) &#123;</span><br><span class="line">    <span class="comment">// error handling</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> wordExtractor = <span class="keyword">new</span> <span class="title class_">WordExtractor</span>();</span><br><span class="line">    wordExtractor.<span class="title function_">extract</span>(buffer).<span class="title function_">then</span>(<span class="function">(<span class="params">doc</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// play with the document</span></span><br><span class="line">    &#125;).<span class="title function_">catch</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// error handling</span></span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
   <article id="post-running-arangod-via-pm2" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -559,58 +604,6 @@
 
 
 
-  <article id="post-uml-and-openapi-for-full-stack-development" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2021-03-14T00:00:00.000Z"><a href="/2021/03/14/uml-and-openapi-for-full-stack-development/">2021-03-14</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2021/03/14/uml-and-openapi-for-full-stack-development/">UML and OpenAPI for full stack development</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>There are many good articles introducing how to become a full stack developer.  Lots of technologies — HTML, CSS, JavaScript, Express, React are mentioned. They are really good resources. However, I think they miss some importatnt things and here are two importatnt things.</p>
-<h2><span id="uml-data-model-of-service">UML: Data Model of Service</span></h2><p>Before implementing a service, it is important to construct concrete a data model, definitions and relationships between entities. Without a concrete data model, design and implementation of service are highly likely to be changed during development, resulting in an unstable product and risk of missing feature.</p>
-<p>To design a class diagram, you can use one of software (or others):</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://staruml.io/">StarUML</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.diagrams.net/">diagrams.net</a></li>
-<li><a target="_blank" rel="noopener" href="https://plantuml.com/">PlantUML</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.lucidchart.com/pages/">Lucidchart</a></li>
-</ul>
-<h2><span id="openapi-protocol-between-backend-and-frontend">OpenAPI: Protocol between Backend and Frontend</span></h2><p>After designing data model, a developer needs to implement backend service provider and frontend service request. <a target="_blank" rel="noopener" href="http://spec.openapis.org/oas/v3.1.0">OpenAPI</a> enables a developer to define a protocol: which paths, parameters and body contents to use, how responses will be.</p>
-<p>To design OpenAPI, you can use one of software (or others):</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://insomnia.rest/product/design">Insomnia Designer</a></li>
-<li><a target="_blank" rel="noopener" href="https://redoc.ly/">Redocly</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.postman.com/">Postman</a></li>
-<li><a target="_blank" rel="noopener" href="https://marketplace.visualstudio.com/items?itemName=42Crunch.vscode-openapi">OpenAPI (Swagger) Editor (VSCode Extension)</a></li>
-<li><a target="_blank" rel="noopener" href="https://marketplace.visualstudio.com/items?itemName=Arjun.swagger-viewer">Swagger Viewer (VSCode Extension)</a></li>
-<li><a target="_blank" rel="noopener" href="https://swagger.io/">Swagger</a></li>
-</ul>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
 
 <nav id="pagination">
   
@@ -695,6 +688,8 @@
   
     <li><a href="/tags/axios/">axios</a><small>1</small></li>
   
+    <li><a href="/tags/browserify/">browserify</a><small>1</small></li>
+  
     <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
   
     <li><a href="/tags/dual-connectivity/">dual connectivity</a><small>1</small></li>
@@ -719,7 +714,7 @@
   
     <li><a href="/tags/web-font/">web font</a><small>1</small></li>
   
-    <li><a href="/tags/webpack/">webpack</a><small>2</small></li>
+    <li><a href="/tags/webpack/">webpack</a><small>3</small></li>
   
   </ul>
 </div>
