@@ -52,6 +52,84 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-quick-start-on-sending-email-with-amazon-ses-on-node-js" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2019-07-07T00:00:00.000Z"><a href="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/">2019-07-07</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/">Quick start on sending email with Amazon SES on Node.js</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Although Amazon provides great documentation, this is what all I needed to send an email with Amazon SES (Simple Email Service) on Node.js.</p>
+<h2><span id="get-started-with-amazon-ses">Get Started with Amazon SES</span></h2><img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/intro.png" class>
+
+<p>To start, visit <a target="_blank" rel="noopener" href="https://aws.amazon.com/ses">Amazon SES</a> and hit <em>Get started with Amazon SES</em>. Then Amazon asks which region you want to use SES. Note that <strong>region for SES doesn’t need to be the same with your other Amazon services</strong>.</p>
+<h2><span id="verify-your-domain-or-email-address">Verify Your Domain or Email Address</span></h2><img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/dashboard.png" class>
+
+<p>After choosing the region, you will see the page above. I highlighted menus you need. You can use two types of identities, domains and email addresses. If you have your own domain and you want to send an email from the domain, the first one needs to be configured. If you want to send an email from your existing email account such as Gmail and Outlook, the second one needs to be configured. <strong>The first one and the second one is not mutually exclusive. You can use both.</strong></p>
+<h3><span id="option-1-verify-your-domain">Option 1: Verify Your Domain</span></h3><img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/verify-domain-01.png" class>
+
+<p>After entering <em>Domains</em> menu, hit <em>Verify a New Domain</em>.</p>
+<img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/verify-domain-02.png" class>
+
+<p>In the popup, type your domain in interest, check <em>Generate DKIM Settings</em> and hit <em>Verify This Domain.</em></p>
+<img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/verify-domain-03.png" class>
+
+<p>For a given domain, SES requests you to configure DNS records in order to verify whether the domain is owned by you. SES will try to verify the domain constantly. If verification succeeds, you will see <em>Verification: verified, DKIM Status: verified, Enalbed for: Yes</em> in the dashboard as shows in the above. Then it’s all set.</p>
+<h3><span id="option-2-verify-your-email-address">Option 2: Verify Your Email Address</span></h3><p>Verifying an email address is simpler. After entereing <em>Email Addresses</em> menu, hit <em>Verify a New Email Address</em> and type an email address in interest. And then SES will send a verification email to a given email address. Once you visit a link given in the verification email, the email address will be verified. Then it’s all set.</p>
+<h2><span id="build-nodejs-application-sending-email-with-ses">Build Node.js Application Sending Email with SES</span></h2><h3><span id="install-aws-sdk">Install AWS SDK</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install aws-sdk</span><br></pre></td></tr></table></figure>
+
+<h3><span id="configure-aws-credentials">Configure AWS Credentials</span></h3><p>To verify whether your Node.js application has the right permissions to send an email with SES, you need to provide the right credentials to AWS SDK.</p>
+<img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/credential-01.png" class>
+
+<p>Visit <a target="_blank" rel="noopener" href="https://console.aws.amazon.com/iam/home#/security_credentials">IAM Management Console</a> and hit <em>Create New Access Key</em>.</p>
+<img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/credential-02.png" class>
+
+<p>Don’t worry. The keys have been deleted</p>
+<p>Remember the created access key and write it down to the following file:</p>
+<ul>
+<li>Windows: <code>C:\Users\*USERNAME*\.aws\credentials</code></li>
+<li>Linux, Unix, or macOS: <code>~/.aws/credentials</code></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[default]</span><br><span class="line">aws_access_key_id = AKIAJ4LGGMQNZ4IJK5XA</span><br><span class="line">aws_secret_access_key = 00pkJqVkmR70kLpXRoqRaoB6zcpo1OmnVeuKvlyP</span><br></pre></td></tr></table></figure>
+
+<p>Now AWS SDK will read access key from the credential file and prove your application has the right permissions.</p>
+<p>Also you can <a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-json-file.html">store AWS credentials in JSON file and load it from Node.js</a>.</p>
+<p><strong>Note: Access key allows full access to your Amazon AWS. Do not disclose access key publicly. I recommend to <a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html">create an IAM user and allows only SES</a></strong></p>
+<h3><span id="script-sending-email-with-ses">Script Sending Email with SES</span></h3><p>The simplest Node.js script sending an email with SES is provided in Amazon Documentation or its GitHub repository, so I’ll skip the entire script here:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/ses-examples-sending-email.html">https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/ses-examples-sending-email.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascript/example_code/ses/ses_sendemail.js">https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascript/example_code&#x2F;ses&#x2F;ses_sendemail.js</a></li>
+</ul>
+<h2><span id="requst-a-sending-limit-increase">Requst a Sending Limit Increase</span></h2><p>Initially, your SES operates in <em>sandbox</em> mode andcan send an email only to domains or email addresses which you verified in the above. To be able to send an email to anyone, you need to <em>Request a Sending Limit Increase</em>.</p>
+<img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/limit.png" class>
+
+<p>Visit <a target="_blank" rel="noopener" href="https://console.aws.amazon.com/support/cases#/create?issueType=service-limit-increase&limitType=service-code-ses">Create Case</a> and create a case to request a sending limit increase.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
   <article id="post-positioning-system-using-decawave-dw1000" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -425,6 +503,8 @@
     <li><a href="/tags/3gpp/">3GPP</a><small>1</small></li>
   
     <li><a href="/tags/antlr4/">ANTLR4</a><small>3</small></li>
+  
+    <li><a href="/tags/asn-1/">ASN.1</a><small>1</small></li>
   
     <li><a href="/tags/amazon/">Amazon</a><small>1</small></li>
   
