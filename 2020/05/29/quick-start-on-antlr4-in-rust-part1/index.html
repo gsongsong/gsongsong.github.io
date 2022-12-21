@@ -49,7 +49,7 @@ Quick Start on ANTLR4 in Rust — Part2">
     
       <li><a href="/archives">Archives</a></li>
     
-      <li><a target="_blank" rel="noopener" href="https://github.com/gsongsong/hexo-src/issues/new">✒</a></li>
+      <li><a target="_blank" rel="noopener" href="https://github.com/internalstability/hexo-src/issues/new">✒</a></li>
     
   </ul>
   <div class="clearfix"></div>
@@ -111,7 +111,7 @@ Quick Start on ANTLR4 in Rust — Part2">
 <p>Read and parse an input. Note that <code>csvFile</code> in the last line is a rule name in <code>CSV.g4</code>:</p>
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">input</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(</span><br><span class="line"><span class="string">&quot;This, is, a, header</span></span><br><span class="line"><span class="string">This, is, a, row</span></span><br><span class="line"><span class="string">&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">lexer</span> = CSVLexer::<span class="title function_ invoke__">new</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(InputStream::<span class="title function_ invoke__">new</span>(input)));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">token_source</span> = CommonTokenStream::<span class="title function_ invoke__">new</span>(lexer);</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">parser</span> = CSVParser::<span class="title function_ invoke__">new</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(token_source));</span><br><span class="line">    parser.<span class="title function_ invoke__">add_parse_listener</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(Listener &#123;&#125;));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">result</span> = parser.<span class="title function_ invoke__">csvFile</span>();</span><br><span class="line">    <span class="built_in">assert!</span>(result.<span class="title function_ invoke__">is_ok</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/gsongsong/antlr4rust_quickstart/commit/1a4fb82e23bf9c5a33ed2298ef875f1fee80151f">here</a>.</p>
+<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/internalstability/antlr4rust_quickstart/commit/1a4fb82e23bf9c5a33ed2298ef875f1fee80151f">here</a>.</p>
 
       
     </div>
@@ -154,7 +154,7 @@ Quick Start on ANTLR4 in Rust — Part2">
 
   
     <script src="https://utteranc.es/client.js"
-      repo="gsongsong/gsongsong.github.io"
+      repo="internalstability/internalstability.github.io"
       issue-term="pathname"
       theme="github-light"
       crossorigin="anonymous"

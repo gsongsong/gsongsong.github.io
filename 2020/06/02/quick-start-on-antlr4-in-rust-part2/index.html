@@ -49,7 +49,7 @@ Quick Start on ANTLR4 in Rust — Part2 (This article)">
     
       <li><a href="/archives">Archives</a></li>
     
-      <li><a target="_blank" rel="noopener" href="https://github.com/gsongsong/hexo-src/issues/new">✒</a></li>
+      <li><a target="_blank" rel="noopener" href="https://github.com/internalstability/hexo-src/issues/new">✒</a></li>
     
   </ul>
   <div class="clearfix"></div>
@@ -96,7 +96,7 @@ Quick Start on ANTLR4 in Rust — Part2 (This article)">
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">input</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(</span><br><span class="line">        <span class="string">&quot;This, is, a, header</span></span><br><span class="line"><span class="string">This, is, a, row</span></span><br><span class="line"><span class="string">&quot;</span>,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">lexer</span> = CSVLexer::<span class="title function_ invoke__">new</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(InputStream::<span class="title function_ invoke__">new</span>(input)));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">token_source</span> = CommonTokenStream::<span class="title function_ invoke__">new</span>(lexer);</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">parser</span> = CSVParser::<span class="title function_ invoke__">new</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(token_source));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">listener_id</span> = parser.<span class="title function_ invoke__">add_parse_listener</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(Listener &#123;</span><br><span class="line">        csv: <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(CSV &#123;</span><br><span class="line">            header: Row::<span class="title function_ invoke__">new</span>(),</span><br><span class="line">            rows: <span class="type">Vec</span>::<span class="title function_ invoke__">new</span>(),</span><br><span class="line">        &#125;),</span><br><span class="line">        add_to_header: <span class="literal">false</span>,</span><br><span class="line">        row_to_add: Row::<span class="title function_ invoke__">new</span>(),</span><br><span class="line">    &#125;));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">result</span> = parser.<span class="title function_ invoke__">csvFile</span>();</span><br><span class="line">    <span class="built_in">assert!</span>(result.<span class="title function_ invoke__">is_ok</span>());</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">listener</span> = parser.<span class="title function_ invoke__">remove_parse_listener</span>(listener_id);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">csv</span> = listener.csv;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:#?&#125;&quot;</span>, csv);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>A tricky part is that we have to extract <code>csv</code> from <code>listener</code>. And to this end, we have to extract <code>listener</code> with <code>listener_id</code>.</p>
-<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/gsongsong/antlr4rust_quickstart/commit/0bc40c180d782d044097f68b756fdba6c5f82da0">here</a>.</p>
+<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/internalstability/antlr4rust_quickstart/commit/0bc40c180d782d044097f68b756fdba6c5f82da0">here</a>.</p>
 
       
     </div>
@@ -139,7 +139,7 @@ Quick Start on ANTLR4 in Rust — Part2 (This article)">
 
   
     <script src="https://utteranc.es/client.js"
-      repo="gsongsong/gsongsong.github.io"
+      repo="internalstability/internalstability.github.io"
       issue-term="pathname"
       theme="github-light"
       crossorigin="anonymous"
