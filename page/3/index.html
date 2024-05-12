@@ -52,319 +52,6 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
-  <article id="post-quick-start-on-sending-email-with-amazon-ses-on-node-js" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2019-07-07T00:00:00.000Z"><a href="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/">2019-07-07</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/">Quick start on sending email with Amazon SES on Node.js</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>Although Amazon provides great documentation, this is what all I needed to send an email with Amazon SES (Simple Email Service) on Node.js.</p>
-<h2><span id="get-started-with-amazon-ses">Get Started with Amazon SES</span></h2><img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/intro.png" class>
-
-<p>To start, visit <a target="_blank" rel="noopener" href="https://aws.amazon.com/ses">Amazon SES</a> and hit <em>Get started with Amazon SES</em>. Then Amazon asks which region you want to use SES. Note that <strong>region for SES doesn’t need to be the same with your other Amazon services</strong>.</p>
-<h2><span id="verify-your-domain-or-email-address">Verify Your Domain or Email Address</span></h2><img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/dashboard.png" class>
-
-<p>After choosing the region, you will see the page above. I highlighted menus you need. You can use two types of identities, domains and email addresses. If you have your own domain and you want to send an email from the domain, the first one needs to be configured. If you want to send an email from your existing email account such as Gmail and Outlook, the second one needs to be configured. <strong>The first one and the second one is not mutually exclusive. You can use both.</strong></p>
-<h3><span id="option-1-verify-your-domain">Option 1: Verify Your Domain</span></h3><img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/verify-domain-01.png" class>
-
-<p>After entering <em>Domains</em> menu, hit <em>Verify a New Domain</em>.</p>
-<img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/verify-domain-02.png" class>
-
-<p>In the popup, type your domain in interest, check <em>Generate DKIM Settings</em> and hit <em>Verify This Domain.</em></p>
-<img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/verify-domain-03.png" class>
-
-<p>For a given domain, SES requests you to configure DNS records in order to verify whether the domain is owned by you. SES will try to verify the domain constantly. If verification succeeds, you will see <em>Verification: verified, DKIM Status: verified, Enalbed for: Yes</em> in the dashboard as shows in the above. Then it’s all set.</p>
-<h3><span id="option-2-verify-your-email-address">Option 2: Verify Your Email Address</span></h3><p>Verifying an email address is simpler. After entereing <em>Email Addresses</em> menu, hit <em>Verify a New Email Address</em> and type an email address in interest. And then SES will send a verification email to a given email address. Once you visit a link given in the verification email, the email address will be verified. Then it’s all set.</p>
-<h2><span id="build-nodejs-application-sending-email-with-ses">Build Node.js Application Sending Email with SES</span></h2><h3><span id="install-aws-sdk">Install AWS SDK</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install aws-sdk</span><br></pre></td></tr></table></figure>
-
-<h3><span id="configure-aws-credentials">Configure AWS Credentials</span></h3><p>To verify whether your Node.js application has the right permissions to send an email with SES, you need to provide the right credentials to AWS SDK.</p>
-<img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/credential-01.png" class>
-
-<p>Visit <a target="_blank" rel="noopener" href="https://console.aws.amazon.com/iam/home#/security_credentials">IAM Management Console</a> and hit <em>Create New Access Key</em>.</p>
-<img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/credential-02.png" class>
-
-<p>Don’t worry. The keys have been deleted</p>
-<p>Remember the created access key and write it down to the following file:</p>
-<ul>
-<li>Windows: <code>C:\Users\*USERNAME*\.aws\credentials</code></li>
-<li>Linux, Unix, or macOS: <code>~/.aws/credentials</code></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[default]</span><br><span class="line">aws_access_key_id = AKIAJ4LGGMQNZ4IJK5XA</span><br><span class="line">aws_secret_access_key = 00pkJqVkmR70kLpXRoqRaoB6zcpo1OmnVeuKvlyP</span><br></pre></td></tr></table></figure>
-
-<p>Now AWS SDK will read access key from the credential file and prove your application has the right permissions.</p>
-<p>Also you can <a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-json-file.html">store AWS credentials in JSON file and load it from Node.js</a>.</p>
-<p><strong>Note: Access key allows full access to your Amazon AWS. Do not disclose access key publicly. I recommend to <a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html">create an IAM user and allows only SES</a></strong></p>
-<h3><span id="script-sending-email-with-ses">Script Sending Email with SES</span></h3><p>The simplest Node.js script sending an email with SES is provided in Amazon Documentation or its GitHub repository, so I’ll skip the entire script here:</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/ses-examples-sending-email.html">https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/ses-examples-sending-email.html</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascript/example_code/ses/ses_sendemail.js">https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascript/example_code&#x2F;ses&#x2F;ses_sendemail.js</a></li>
-</ul>
-<h2><span id="requst-a-sending-limit-increase">Requst a Sending Limit Increase</span></h2><p>Initially, your SES operates in <em>sandbox</em> mode andcan send an email only to domains or email addresses which you verified in the above. To be able to send an email to anyone, you need to <em>Request a Sending Limit Increase</em>.</p>
-<img src="/2019/07/07/quick-start-on-sending-email-with-amazon-ses-on-node-js/limit.png" class>
-
-<p>Visit <a target="_blank" rel="noopener" href="https://console.aws.amazon.com/support/cases#/create?issueType=service-limit-increase&limitType=service-code-ses">Create Case</a> and create a case to request a sending limit increase.</p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-  <article id="post-positioning-system-using-decawave-dw1000" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2017-08-24T00:00:00.000Z"><a href="/2017/08/24/positioning-system-using-decawave-dw1000/">2017-08-24</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2017/08/24/positioning-system-using-decawave-dw1000/">Positioning system using DecaWave DW1000</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <h2><span id="decawaves-dw1000">DecaWave’s DW1000</span></h2><p><a target="_blank" rel="noopener" href="https://decawave.com/products/dw1000">DW1000</a> is a UWB communication and ranging module manufactured by DecaWave.<br>It provides a fairly good ranging accuracy (&lt; 2 cm).  Not only a simple anchor-tag ranging system, let’s make a practical centimeter-level precision indoor positioning system using it</p>
-<h2><span id="system-design">System Design</span></h2><h3><span id="overview">Overview</span></h3><p>A setup is shown in a figure below:</p>
-<img src="/2017/08/24/positioning-system-using-decawave-dw1000/overview.png" class>
-
-<ul>
-<li>A tag<ul>
-<li>A tag is composed of two components—Raspberry Pi and Arduino Pro Mini</li>
-<li>Raspberry Pi controles a higher level indoor positioning system<ul>
-<li>It triggers Arduino Pro Mini to probe anchors and measure distance between it and each anchor</li>
-<li>It requests distance measurements on Arduino Pro Mini and locate itself through trilateration</li>
-</ul>
-</li>
-<li>Arduino Pro Mini<ul>
-<li>It is required due to similar reasons of anchors</li>
-<li>It receives commands from Raspberry Pi and executes the corresponding process<br>  Processes are:<ul>
-<li>Probing anchors nearby and exchanging series of frames with each anchor<br>  to measure distance</li>
-<li>Reporting probed anchors and measured distance values</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Anchors<ul>
-<li>They are deployed in a site of interest and their 2D&#x2F;3D coordinates are known</li>
-<li>They are implemented on Arduino Pro Mini for the following reasons:<ul>
-<li>Arduino Pro Mini’s low power consumption</li>
-<li>Anchor’s fast response requirement (order of milliseconds)</li>
-<li>Anchor’s simple tasks (receiving and transmitting UWB frames)</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>An overall sequence diagram is illustrated below. <code>Tag (Arduino)</code> is actually composed of Arduino Pro Mini and DW1000.</p>
-<img src="/2017/08/24/positioning-system-using-decawave-dw1000/sequence.png" class>
-
-<h3><span id="state-machine-tag">State Machine: Tag</span></h3><p>A figure below is a state diagram of a tag:</p>
-<img src="/2017/08/24/positioning-system-using-decawave-dw1000/state-tag.png" class>
-
-<p>When a Raspberry Pi commands via I2C to scan, it goes into <code>SCAN</code> state and broadcasts a <code>PING</code> message. Going into <code>PONG</code> state immediately, it waits for <code>PONG</code> messages from anchors nearby for a certain duration. I set it to 100 ms.</p>
-<p>If it discovers 3 or more anchors during the <code>PONG</code> state, it goes into <code>ROUNDROBIN</code> state. It exchanges 4 messages with each discovered anchor sequentially, i.e. <code>POLL</code> to an anchor, <code>POLL_ACK</code> from an anchor, <code>RANGE</code> to an anchor, and <code>RANGE_REPORT</code> from an anchor. After sending <code>POLL</code> and <code>RANGE</code> message, it waits for a response message for a certain timeout of 10 ms.</p>
-<p>After 4 messages are exchanged with each anchor, it calculates distance between an anchor using Tx&#x2F;Rx timestamp. It adopts two-way ranging algorithm, which is a bit computational intensive, but I think it is not that much intensive. For more information about two-way ranging, please refer the official appliclation note <a target="_blank" rel="noopener" href="https://decawave.com/sites/default/files/aps013_dw1000_and_two_way_ranging_v2.2.pdf">APS013 by DecaWave</a>.</p>
-<h3><span id="state-machine-anchor">State Machine: Anchor</span></h3><p>A state diagram of an anchor is simple:</p>
-<img src="/2017/08/24/positioning-system-using-decawave-dw1000/state-tag.png" class>
-
-<ul>
-<li>It normally stays at <code>IDLE</code> state</li>
-<li>If it receives a <code>PING</code> message, it tries to send a <code>PONG</code> message with a random delay between 0 and 90 ms to avoid the collision and goes into <code>PENDING_PONG</code> state</li>
-<li>If it receives a <code>POLL</code> message and sends a <code>POLL_ACK</code> message, it goes into <code>RANGE</code> state and waits for a <code>RANGE</code> message is received<ul>
-<li>If timeout of 10 ms expires, it returns to <code>IDLE</code> state</li>
-<li>If it receives a <code>RANGE</code> message, it sends a <code>RANGE_REPORT</code> message to a tag</li>
-</ul>
-</li>
-</ul>
-<h2><span id="implementation">Implementation</span></h2><p>The whole implementation can be found in <a target="_blank" rel="noopener" href="https://github.com/internalstability/dw1000-positioning">my GitHub repository</a>. I used <a target="_blank" rel="noopener" href="https://github.com/thotro/arduino-dw1000">arduino-dw1000</a> for controlling DW1000 using Arduino. I followed wiring between Arduino Pro Mini and DW1000 as defined in <code>examples/Ranging&#123;Anchor,Tag&#125;</code> of the library. Only I2C interface is needed to connect Raspberry Pi and Arduino Pro Mini</p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-  <article id="post-building-thrift-on-windows-10" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2017-07-18T00:00:00.000Z"><a href="/2017/07/18/building-thrift-on-windows-10/">2017-07-18</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2017/07/18/building-thrift-on-windows-10/">Building Thrift on Windows 10</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>Contrast to Linux and macOSs, many are having difficult times building and using Thrift on Windows 10. Most Thrift guides on the internet miss some parts. Here’s the correct way to build and use Thrift on Windows 10.</p>
-<h2><span id="dependencies">Dependencies</span></h2><ul>
-<li>Boost</li>
-<li>OpenSSL (for secure socket)</li>
-<li>libevent (for callback)</li>
-</ul>
-<h3><span id="boost">Boost</span></h3><ul>
-<li>Download <a target="_blank" rel="noopener" href="https://sourceforge.net/projects/boost/files/boost-binaries/">boost</a>. At this time of writing, the latest version is 1.64.0. I downloaded <code>boost_1_64_0-msvc-14.1-64.exe</code>.<ul>
-<li>You must download a correct binary with consideration of OS addressing mode (32&#x2F;64 bits) and MSVC version</li>
-<li>You can check MSVC version in a project property page of a  project which will use Thrift</li>
-</ul>
-</li>
-</ul>
-<img src="/2017/07/18/building-thrift-on-windows-10/msvc-version.png" class>
-
-<ul>
-<li><p>Execute the downloaded file to extract files. In my case, <code>C:\boost_1_64_0</code></p>
-</li>
-<li><p>Open <code>**Native Tools Command Prompt**</code> and execute the following commands</p>
-  <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> C:\boost_1_64_0</span><br><span class="line">bootstrap</span><br><span class="line">b2 <span class="literal">--build-type</span>=minimal <span class="literal">--stagedir</span>=stage/x64 ^</span><br><span class="line">   threading=multi link=<span class="keyword">static</span> toolset=msvc<span class="literal">-14</span>.<span class="number">0</span> ^</span><br><span class="line">   variant=release address<span class="literal">-model</span>=<span class="number">64</span> architecture=x86 ^</span><br><span class="line">   <span class="literal">-j8</span></span><br></pre></td></tr></table></figure>
-
-<p>  Options are:</p>
-<ul>
-<li><code>stagedir</code>: directory to store built files</li>
-<li><code>threading=multi</code>: build thread-safe Boost</li>
-<li><code>link=static</code>: build static Boost library</li>
-<li><code>toolset=msvc-14.0</code>: Visual Studio MSVC (Platform Toolset) used for a project</li>
-<li><code>variant=release</code>: Debug&#x2F;Release configuration used for a project</li>
-<li><code>address-model=64</code>: addressing mode of your OS</li>
-<li><code>architecture=x86</code>: your CPU architecture</li>
-</ul>
-</li>
-</ul>
-<h3><span id="openssl">OpenSSL</span></h3><ul>
-<li>Download <a target="_blank" rel="noopener" href="https://slproweb.com/products/Win32OpenSSL.html">OpenSSL v1.0.2L binary</a> (not light version)<ul>
-<li>v1.1.0 causes an <code>SSLv3_method</code>-related error when building Thrift, at least in my case</li>
-<li>Be careful of the addressing mode of your OS</li>
-</ul>
-</li>
-<li>Install OpenSSL by executing the downloaded file. I installed it under <code>C:\OpenSSL-Win64</code></li>
-</ul>
-<h3><span id="libevent">libevent</span></h3><ul>
-<li>Download <a target="_blank" rel="noopener" href="http://libevent.org/">libevent-2.0.22</a> (v2.1.8 has an issue)</li>
-<li>Extract it under <code>C\:libevent-2.0.22-stable</code>, or whereever you want</li>
-<li>Open <code>**Native Tools Command Prompt**</code> and build it by executing <code>nmake -f Makefile.nmake</code></li>
-</ul>
-<h2><span id="building-thrift">Building Thrift</span></h2><ul>
-<li>Download <a target="_blank" rel="noopener" href="https://github.com/apache/thrift/releases/tag/0.9.2">Thrift 0.9.2</a> (v0.9.3 and later version have an issue) and extract it to somewhere (<code>C:\thrift-0.9.2</code>, in my case)</li>
-<li>Open a solution <code>thrift.sln</code> under <code>C:\thrift-0.9.2\lib\cpp</code>. There are two projects: <code>libthrift</code> and <code>libthriftnb</code></li>
-<li>Open property pages and adjust <code>Target Platform Version</code> and <code>Platform Toolset</code> as the same as a project which you are working on</li>
-<li>Set parameters as the following:<ul>
-<li><p><code>libthrift</code></p>
-<ul>
-<li>C&#x2F;C++ &gt; General &gt; Additional Include Directories<ul>
-<li><code>C:\OpenSSL-Win64\include</code>, <code>C:\boost_1_64_0</code></li>
-</ul>
-</li>
-<li>Librarian &gt; All Options<ul>
-<li>Additional Dependencies<ul>
-<li><code>libeay32.lib</code>, <code>ssleay32.lib</code>, <code>libeay32MT.lib</code>, <code>ssleay32MT.lib</code></li>
-</ul>
-</li>
-<li>Additional Library Directories<ul>
-<li><code>C:\OpenSSL-Win64\lib</code>, <code>C:\OpenSSL-Win64\lib\VC\static</code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>  Note that you need to add other library files and directories according to static&#x2F;dynamic link and Debug&#x2F;Release configuration</p>
-</li>
-<li><p><code>libthriftnb</code></p>
-<ul>
-<li>C&#x2F;C++ &gt; General &gt; Additional Include Directories<ul>
-<li><code>C:\libevent-2.0.22-stable\include</code>, <code>C:\libevent-2.0.22-stable\WIN32-Code</code>, <code>C:\libevent-2.0.22-stable</code>, <code>C:\boost_1_64_0</code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Build <code>libthrift</code> and <code>libthriftn</code> sequentially</li>
-</ul>
-<h2><span id="testing-thrift">Testing Thrift</span></h2><ul>
-<li><p>Grab the <a target="_blank" rel="noopener" href="https://thrift.apache.org/tutorial/cpp">example code</a> and make a project for each server and client</p>
-</li>
-<li><p>Get the <a target="_blank" rel="noopener" href="https://archive.apache.org/dist/thrift/0.9.2/">Thrift compiler</a> and compile Thrift definition files above</p>
-</li>
-<li><p>Set parameters of each project as the following:</p>
-<ul>
-<li>C&#x2F;C++ &gt; General &gt; Additional Include Directories<ul>
-<li><code>C:\boost_1_64_0</code>, <code>C:\thrift-0.9.2\lib\cpp\src\thrift\windows</code>, <code>C:\thrift-0.9.2\lib\cpp\src</code></li>
-</ul>
-</li>
-<li>Linker &gt; All Options<ul>
-<li>Additional Dependencies<ul>
-<li>libthrift.lib</li>
-</ul>
-</li>
-<li>Additional Library Directories<ul>
-<li><p><code>C\:thrift-0.9.2\lib\cpp\x64\Release</code>, <code>C:\boost_1_64_0\stage\x64\lib</code></p>
-<p>  Note: you may need to add other directories according to Debug&#x2F;Release configuration</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Build and start a server project and then a client project. You can see Thrift working</p>
-</li>
-</ul>
-<img src="/2017/07/18/building-thrift-on-windows-10/demo.png" class>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
   <article id="post-reading-ranging-data-from-decawave-evk1000" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -500,8 +187,6 @@
   <h3 class="title">Tags</h3>
   <ul class="entry">
   
-    <li><a href="/tags/3gpp/">3GPP</a><small>1</small></li>
-  
     <li><a href="/tags/antlr4/">ANTLR4</a><small>3</small></li>
   
     <li><a href="/tags/asn-1/">ASN.1</a><small>1</small></li>
@@ -510,7 +195,7 @@
   
     <li><a href="/tags/ant-design/">Ant Design</a><small>1</small></li>
   
-    <li><a href="/tags/arangodb/">ArangoDB</a><small>3</small></li>
+    <li><a href="/tags/arangodb/">ArangoDB</a><small>2</small></li>
   
     <li><a href="/tags/dw1000/">DW1000</a><small>1</small></li>
   
@@ -530,15 +215,7 @@
   
     <li><a href="/tags/intel/">Intel</a><small>1</small></li>
   
-    <li><a href="/tags/nr/">NR</a><small>1</small></li>
-  
-    <li><a href="/tags/nr-dc/">NR-DC</a><small>1</small></li>
-  
     <li><a href="/tags/openapi/">OpenAPI</a><small>1</small></li>
-  
-    <li><a href="/tags/pm2/">PM2</a><small>1</small></li>
-  
-    <li><a href="/tags/rrc/">RRC</a><small>1</small></li>
   
     <li><a href="/tags/react/">React</a><small>1</small></li>
   
@@ -562,11 +239,7 @@
   
     <li><a href="/tags/axios/">axios</a><small>1</small></li>
   
-    <li><a href="/tags/browserify/">browserify</a><small>1</small></li>
-  
     <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
-  
-    <li><a href="/tags/dual-connectivity/">dual connectivity</a><small>1</small></li>
   
     <li><a href="/tags/email/">email</a><small>1</small></li>
   
@@ -582,13 +255,11 @@
   
     <li><a href="/tags/recursion/">recursion</a><small>1</small></li>
   
-    <li><a href="/tags/telecommunications/">telecommunications</a><small>1</small></li>
-  
     <li><a href="/tags/trilateration/">trilateration</a><small>2</small></li>
   
     <li><a href="/tags/web-font/">web font</a><small>1</small></li>
   
-    <li><a href="/tags/webpack/">webpack</a><small>3</small></li>
+    <li><a href="/tags/webpack/">webpack</a><small>2</small></li>
   
   </ul>
 </div>
