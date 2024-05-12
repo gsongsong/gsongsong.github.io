@@ -52,100 +52,6 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
-  <article id="post-installing-electron-manually-for-electron-builder" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2020-08-11T00:00:00.000Z"><a href="/2020/08/11/installing-electron-manually-for-electron-builder/">2020-08-11</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2020/08/11/installing-electron-manually-for-electron-builder/">Installing Electron manually for electron-builder</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>This article tries to resolve an uncommon issue when you encounter the following error and it cannot be resolved automatically, e.g. behind proxy, etc.:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: Electron failed to install correctly, please delete node_modules/electron and try installing again</span><br></pre></td></tr></table></figure>
-
-<p>Download the right version (with consideration of <code>package.json</code>) of Electron from <a target="_blank" rel="noopener" href="https://github.com/electron/electron/releases">https://github.com/electron/electron/releases</a></p>
-<p>Unpack the downloaded Electron and put all files under <code>node_modules/electron/dist</code>.</p>
-<p>Create <code>path.txt</code> file under <code>node_modules/electron</code> with the following content:</p>
-<ul>
-<li>Windows: <code>electron.exe</code></li>
-<li>Linux: <code>electron</code></li>
-<li>macOS: <code>Electron.app/Contents/MacOS/Electron</code></li>
-</ul>
-<p><em>Note: Make sure there is no whitespace characters (including a newline character) after the filename. This is a problem that I struggled for minutes and hours.</em></p>
-<h2><span id="references">References</span></h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/electron/electron-rebuild/issues/39">spawn dist&#x2F;electron.exe ENOENT #39</a></li>
-</ul>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-  <article id="post-quick-start-on-antlr4-in-rust-part3" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2020-06-10T00:00:00.000Z"><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3/">2020-06-10</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3/">Quick start on ANTLR4 in Rust - part3</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p><em>This is my note in adopting and learning ANTLR4Rust</em></p>
-<p><strong>Series</strong></p>
-<ul>
-<li><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1">Quick Start on ANTLR4 in Rust — Part1</a></li>
-<li><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2">Quick Start on ANTLR4 in Rust — Part2</a></li>
-<li>Quick Start on ANTLR4 in Rust — Part3 (This article)</li>
-</ul>
-<hr>
-<p>In the previous article, we implemented a parser with internal state variables. However, if a grammar is huge, it is practically impossible to manage a huge number of state variables. Alternatively, a visitor-like approach can be used.</p>
-<p>In an exit method of the root rule in the Listener, we can grab the current context and its children and call custom parser methods:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> <span class="title class_">Listener</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">hdr</span>(&amp;<span class="keyword">self</span>, ctx: &amp;HdrContextAll) <span class="punctuation">-&gt;</span> Row &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">row_ctx</span> = ctx.<span class="title function_ invoke__">row</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">self</span>.<span class="title function_ invoke__">row</span>(&amp;row_ctx)</span><br><span class="line">    &#125;    <span class="keyword">fn</span> <span class="title function_">row</span>(&amp;<span class="keyword">self</span>, ctx: &amp;RowContextAll) <span class="punctuation">-&gt;</span> Row &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">row</span> = Row::<span class="title function_ invoke__">new</span>();</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">field_ctx_list</span> = ctx.<span class="title function_ invoke__">field_all</span>();</span><br><span class="line">        <span class="title function_ invoke__">for</span> (_i, field_ctx) <span class="keyword">in</span> field_ctx_list.<span class="title function_ invoke__">iter</span>().<span class="title function_ invoke__">enumerate</span>() &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">field</span> = <span class="keyword">self</span>.<span class="title function_ invoke__">field</span>(&amp;field_ctx);</span><br><span class="line">            row.<span class="title function_ invoke__">push</span>(field);</span><br><span class="line">        &#125;</span><br><span class="line">        row</span><br><span class="line">    &#125;    <span class="keyword">fn</span> <span class="title function_">field</span>(&amp;<span class="keyword">self</span>, ctx: &amp;FieldContextAll) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">        ctx.<span class="title function_ invoke__">get_text</span>()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">CSVListener</span> <span class="keyword">for</span> <span class="title class_">Listener</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">exit_csvFile</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;CsvFileContext) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">hdr_ctx</span> = ctx.<span class="title function_ invoke__">hdr</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">header</span> = <span class="keyword">self</span>.<span class="title function_ invoke__">hdr</span>(&amp;hdr_ctx);</span><br><span class="line">        <span class="keyword">self</span>.csv.header = header;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">row_ctx_list</span> = ctx.<span class="title function_ invoke__">row_all</span>();</span><br><span class="line">        <span class="title function_ invoke__">for</span> (_i, row_ctx) <span class="keyword">in</span> row_ctx_list.<span class="title function_ invoke__">iter</span>().<span class="title function_ invoke__">enumerate</span>() &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">row</span> = <span class="keyword">self</span>.<span class="title function_ invoke__">row</span>(&amp;row_ctx);</span><br><span class="line">            <span class="keyword">self</span>.csv.rows.<span class="title function_ invoke__">push</span>(row);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/internalstability/antlr4rust_quickstart/commit/541cd68c7587e62263242df5a2998a5e9dff71ce">here</a>.</p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
   <article id="post-quick-start-on-antlr4-in-rust-part2" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -720,13 +626,122 @@
 
 
 
+  <article id="post-reading-ranging-data-from-decawave-evk1000" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2017-05-14T00:00:00.000Z"><a href="/2017/05/14/reading-ranging-data-from-decawave-evk1000/">2017-05-14</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2017/05/14/reading-ranging-data-from-decawave-evk1000/">Reading ranging data from DecaWave EVK1000</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <h2><span id="decawave-evk1000-and-trek1000">DecaWave EVK1000 and TREK1000</span></h2><p>EVK1000 and TREK1000 are Two-way Ranging Evaluation Kit for DecaWave’s UWB DW1000 chip. You can see and evaluate a ranging result on a screen of each of them. However, to see a positioning result, you need to connect one of them with a PC and use DecaWave’s dedicated software only on Windows. Here’s how to read data from EVK1000 without the dedicated software</p>
+<h2><span id="preparing-a-driver">Preparing a Driver</span></h2><p>This kit has a COM (serial) port. But this port is wrapped with USB interface and operates with a virtual COM port driver</p>
+<ul>
+<li>On Windows, a driver for this (STM32 Virtual ComPort in FS Mode v1.4.0) can be downloaded at here. After downloading and extracting the file, run <code>&lt;OS&gt;/dpinst_&lt;arch&gt;</code>.exe where <code>&lt;OS&gt;</code> and <code>&lt;arch&gt;</code> are your OS and architecture, respectively. A related thread can be found <a target="_blank" rel="noopener" href="http://forum.espruino.com/conversations/290299/">here</a></li>
+<li>On Linux and macOS, when a board is connected, a driver will be automatically loaded</li>
+</ul>
+<p>For more detail, please refer <a target="_blank" rel="noopener" href="http://www.ftdichip.com/Drivers/VCP.htm">FTDI Chip</a></p>
+<h2><span id="reading-and-parsing-ranging-data">Reading and Parsing Ranging Data</span></h2><p>Configure anchors and a tag by flipping switches as instruction says, and connect an anchor or a tag with a PC. Since it uses a virtual COM port, serial communication parameters are automatically configured and you don’t need to worry about it</p>
+<p>When connection is successful, you can see outputs on a serial port terminal as the following:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mr 01 000004d1 00000000 00000000 00000000 001e 20 403c403c t7:0</span><br><span class="line">mc 01 0000058c 00000000 00000000 00000000 001f 21 00003fe5 t7:0</span><br><span class="line">mr 01 000004ba 00000000 00000000 00000000 001f 21 403c403c t7:0</span><br><span class="line">mc 01 0000059a 00000000 00000000 00000000 0020 22 000040fd t7:0</span><br><span class="line">mr 01 000004c8 00000000 00000000 00000000 0020 22 403c403c t7:0</span><br><span class="line">mc 01 00000579 00000000 00000000 00000000 0021 23 00004215 t7:0</span><br><span class="line">mr 01 000004a7 00000000 00000000 00000000 0021 23 403c403c t7:0</span><br><span class="line">mc 01 0000059a 00000000 00000000 00000000 0022 24 0000432d t7:0</span><br><span class="line">mr 01 000004c8 00000000 00000000 00000000 0022 24 403c403c t7:0</span><br><span class="line">mc 01 00000574 00000000 00000000 00000000 0023 25 00004445 t7:0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>Here, important columns are from the 3rd to 6th, 7th, 8th columns</p>
+<ul>
+<li>The 3rd to 6th columns represent a range measurement from each anchor 0 to 3 in hexadecimal<ul>
+<li>For example, <code>000004d1</code> represents <code>0x4d1</code> or <code>1233</code>, which is 1.233 m.</li>
+</ul>
+</li>
+<li>The 7th column represents a sequence number</li>
+<li>The 8th column represents a ranging sequence number</li>
+</ul>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+  <article id="post-modifying-regulations-in-intel-wi-fi-card-eeprom" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2017-04-22T00:00:00.000Z"><a href="/2017/04/22/modifying-regulations-in-intel-wi-fi-card-eeprom/">2017-04-22</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2017/04/22/modifying-regulations-in-intel-wi-fi-card-eeprom/">Modifying regulations in Intel Wi-Fi card EEPROM</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <h2><span id="regulations-in-eeprom">Regulations in EEPROM</span></h2><p>Wi-Fi regulation defines various restirctions such as transmission power, initial radiation, and dynamic frequency switching for Wi-Fi to operate in a certain country. Most OSs including Linux contain regulations in their kernels, and we can bypass them by modifying a regulation file or a kernel.</p>
+<p>However, certain Wi-Fi cards such as Intel’s have their own regulations in their EEPROM, which takes precedence to kernel’s regulations. Here’s how to modify regulations in <a target="_blank" rel="noopener" href="https://wikidevi.com/wiki/Intel_WiFi_Link_5300_(full_size)">Intel Wi-Fi card’s EEPROM</a>. In this article, Intel Ultimate N WiFi Link 5300 is used</p>
+<h2><span id="preparing-a-tool">Preparing a Tool</span></h2><p><a target="_blank" rel="noopener" href="https://github.com/0x90/iwleeprom">iwleeprom</a> is a software to read and write content in an EEPROM. Clone, build and install it:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git <span class="built_in">clone</span> [https://github.com/0x90/iwleeprom](https://github.com/0x90/iwleeprom)</span><br><span class="line">$ <span class="built_in">cd</span> iwleeprom</span><br><span class="line">$ make</span><br><span class="line">$ [sudo] make install</span><br></pre></td></tr></table></figure>
+
+<h2><span id="interpreting-a-regulation-flag">Interpreting a Regulation Flag</span></h2><p>First, let’s have a look at what EEPROM contains. To read regulations in EEPROM, type iwleeprom -s:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ iwleeprom -s</span><br><span class="line">Supported devices detected:</span><br><span class="line">[1] 0000:03:00.0 [RW] Ultimate N WiFi Link 5300 (8086:4236, 8086:1011)</span><br><span class="line">Select device [1-1] (or 0 to quit): 1</span><br><span class="line">Using device 0000:03:00.0 [RW] Ultimate N WiFi Link 5300</span><br><span class="line">No file names given or patch option selected!</span><br><span class="line">No EEPROM actions will be performed, just write-enable <span class="built_in">test</span></span><br><span class="line">Regulatory data from card EEPROM...</span><br><span class="line">Regulatory base: 0156</span><br><span class="line">Channel 1: 0e6f</span><br><span class="line">Channel 2: 0f6f</span><br><span class="line">...</span><br><span class="line">Channel 64: 0f31</span><br><span class="line">...</span><br><span class="line">Channel 1 (HT40): 0a6f</span><br><span class="line">Channel 2 (HT40): 0f6f</span><br><span class="line">...</span><br><span class="line">Channel 157 (HT40): 0f61</span><br></pre></td></tr></table></figure>
+
+<p>What those <code>0e6f</code>, <code>0f31</code> and other things mean? Those are <em>flags</em> defining regulations. So, which bit stands for what? When you are looking into Linux kernel source code, specifically, <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/4bdd4dfe7a893594a75ca324057f7010b1762bd2/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.c#L289-L305"><code>iwlwifi</code> driver</a>, you can see flag definition as below:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * enum iwl_eeprom_channel_flags - channel flags in EEPROM</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_VALID: channel is usable for this SKU/geo</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_IBSS: usable as an IBSS channel</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_ACTIVE: active scanning allowed</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_RADAR: radar detection required</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_WIDE: 20 MHz channel okay (?)</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_DFS: dynamic freq selection candidate</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">iwl_eeprom_channel_flags</span> &#123;</span></span><br><span class="line">EEPROM_CHANNEL_VALID = BIT(<span class="number">0</span>),</span><br><span class="line">EEPROM_CHANNEL_IBSS = BIT(<span class="number">1</span>),</span><br><span class="line">EEPROM_CHANNEL_ACTIVE = BIT(<span class="number">3</span>),</span><br><span class="line">EEPROM_CHANNEL_RADAR = BIT(<span class="number">4</span>),</span><br><span class="line">EEPROM_CHANNEL_WIDE = BIT(<span class="number">5</span>),</span><br><span class="line">EEPROM_CHANNEL_DFS = BIT(<span class="number">7</span>),</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>For example, channel 1 has flags <code>0e6f</code>, which is <code>1110 0110 1111</code> in binary. Its interpretation is:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1110 0110 1111</span><br><span class="line">.............1 This channel is valid</span><br><span class="line">............1. Not valid for IBSS</span><br><span class="line">...........1.. (Unknown)</span><br><span class="line">..........1... Active scanning is allowed</span><br><span class="line">........0..... RADAR detection is not required</span><br><span class="line">.......1...... Supports wide band</span><br><span class="line">......1....... Candidate for dynamic frequency selection</span><br></pre></td></tr></table></figure>
+
+<h2><span id="reading-eeprom">Reading EEPROM</span></h2><p>To read and dump EEPROM, type <code>iwleeprom -o &lt;outfile&gt;</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ iwleeprom -b -o eeprom_dump</span><br><span class="line">Supported devices detected:</span><br><span class="line">[1] 0000:03:00.0 [RW] Ultimate N WiFi Link 5300 (8086:4236, 8086:1011)</span><br><span class="line">Select device [1-1] (or 0 to quit): 1</span><br><span class="line">Using device 0000:03:00.0 [RW] Ultimate N WiFi Link 5300</span><br><span class="line">Saving dump with byte order: BIG ENDIAN</span><br><span class="line">0000 [................................................................]</span><br><span class="line">0080 [................................................................]</span><br><span class="line">...</span><br><span class="line">0780 [................................................................]</span><br><span class="line"></span><br><span class="line">EEPROM has been dumped to eeprom_dump</span><br></pre></td></tr></table></figure>
+
+<p>We can view the dumped EEPROM with <code>xxd</code> command or hex mode (<code>:%!xxd</code>) in <code>vim</code>, and can find channel flags. They are written in the same order of channels, but their offsets are not in linear relationships. You can manually locate an offset of each channel:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ vim eeprom_dump</span><br><span class="line">:%!xxd</span><br><span class="line">00000000: 5a40 0050 7000 0410 0030 0000 0280 8086 4236 8086 1011 0d01 Z@.Pp....0......B6.......</span><br><span class="line">...</span><br><span class="line">00000150: ---- ---- ---- ---- ---- ---- ---- --0e 6f0f 6f0f 6f0f 6f0f :.........oM.W...o.o.o.o.</span><br><span class="line">00000168: 6f0f 6f0f 6f0f 6f0f 6f0f 6f0f 6f0f 610f 6100 0000 0000 0000 :o.o.o.o.o.o.o.a.a.......</span><br><span class="line">00000180: 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 :........................</span><br><span class="line">00000198: 0000 000f e100 000f e100 000f e100 000f e10f 310f 310f 310f :..................1.1.1.</span><br><span class="line">000001b0: 3100 000f 310f 310f 310f 310f 310f 310f 310f 310f 310f 310f :1...1.1.1.1.1.1.1.1.1.1.</span><br><span class="line">000001c8: 3100 0000 000f a10f a10f a10f a10f a100 000d 0a6f 0f6f 0f6f :1..................o.o.o</span><br><span class="line">000001e0: 0f6f 0f6f 0f6f 0c6f 0000 0ce1 0fe1 0f31 0d31 0e31 0f31 0f31 :.o.o.o.o.......1.1.1.1.1</span><br><span class="line">000001f8: 0f31 0f31 0f61 0f61 :.1.1.a.a</span><br></pre></td></tr></table></figure>
+
+<h2><span id="modifying-regulations">Modifying Regulations</span></h2><p>It is easy. Open the dumped EEPROM in <code>vim</code> and set to hex mode (<code>:%!xxd</code>). And change the content as you want. To save changes, reert hex mode (<code>:%!xxd -r</code>) and save it (<code>:w</code>)</p>
+<h2><span id="writing-new-regulations-in-eeprom">Writing New Regulations in EEPROM</span></h2><p>After finishing modification, rewrite EEPROM with <code>iwleeprom -m -c -i &lt;infile&gt;</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ iwleeprom -m -c -i eeprom_dump</span><br><span class="line">Supported devices detected:</span><br><span class="line">[1] 0000:03:00.0 [RW] Ultimate N WiFi Link 5300 (8086:4236, 8086:1011)</span><br><span class="line">Select device [1-1] (or 0 to quit): 1</span><br><span class="line">Using device 0000:03:00.0 [RW] Ultimate N WiFi Link 5300</span><br><span class="line">Dump file byte order: BIG ENDIAN</span><br><span class="line">0000 [================================================================]</span><br><span class="line">0080 [================================================================]</span><br><span class="line">...</span><br><span class="line">0780 [================================================================]</span><br><span class="line"></span><br><span class="line">EEPROM has been written from eeprom_dump</span><br></pre></td></tr></table></figure>
+
+<p>Finally, you can check modification is applied via <code>iw phy</code> command</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
 
 <nav id="pagination">
   
     <a href="/" class="alignleft prev">Prev</a>
   
-  
-    <a href="/page/3/" class="alignright next">Next</a>
   
   <div class="clearfix"></div>
 </nav></div></div>
@@ -753,8 +768,6 @@
     <li><a href="/tags/amazon/">Amazon</a><small>1</small></li>
   
     <li><a href="/tags/ant-design/">Ant Design</a><small>1</small></li>
-  
-    <li><a href="/tags/arangodb/">ArangoDB</a><small>2</small></li>
   
     <li><a href="/tags/dw1000/">DW1000</a><small>1</small></li>
   

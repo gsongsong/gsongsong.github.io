@@ -508,84 +508,6 @@
 
 
 
-  <article id="post-finding-the-number-of-edges-of-a-document" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2021-06-03T00:00:00.000Z"><a href="/2021/06/03/finding-the-number-of-edges-of-a-document/">2021-06-03</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2021/06/03/finding-the-number-of-edges-of-a-document/">Finding the number of edges of a document in ArangoDB</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <h2><span id="query">Query</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FOR d, e IN ANY|INBOUND|OUTBOUND documentId edgeCollectionName</span><br><span class="line">  COLLECT AGGREGATE numEdges = LENGTH(1)</span><br><span class="line">  RETURN numEdges</span><br></pre></td></tr></table></figure>
-
-<h2><span id="application-finding-a-document-with-no-edge">Application: Finding a document with no edge</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">FOR doc IN collectionName</span><br><span class="line">  let numEdges = (</span><br><span class="line">    FOR d, e IN ANY|INBOUND|OUTBOUND doc._id edgeCollectionName</span><br><span class="line">      COLLECT AGGREGATE numEdges = LENGTH(1)</span><br><span class="line">      RETURN numEdges</span><br><span class="line">  )[0]</span><br><span class="line">  FILTER numEdges == 0</span><br><span class="line">  RETURN doc</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-  <article id="post-finding-an-item-in-an-array-with-partial-match" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2021-05-08T00:00:00.000Z"><a href="/2021/05/08/finding-an-item-in-an-array-with-partial-match/">2021-05-08</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2021/05/08/finding-an-item-in-an-array-with-partial-match/">Finding an item in an array with partial match in ArangoDB</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <h2><span id="query">Query</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LET needle = &quot;eedl&quot;</span><br><span class="line">LET haystack = [&quot;needle&quot;, &quot;in&quot;, &quot;a&quot;, &quot;haystack&quot;]</span><br><span class="line">RETURN haystack[** FILTER CONTAINS(CURRENT, needle)]</span><br><span class="line">// Output: [&quot;needle&quot;]</span><br></pre></td></tr></table></figure>
-
-<h2><span id="variant-case-insensitive">Variant: Case-insensitive</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LET needle = &quot;EEDL&quot;</span><br><span class="line">LET haystack = [&quot;needle&quot;, &quot;in&quot;, &quot;a&quot;, &quot;haystack&quot;]</span><br><span class="line">RETURN haystack[** FILTER CONTAINS(LOWER(CURRENT), LOWER(needle))]</span><br><span class="line">// Output: [&quot;needle&quot;]</span><br></pre></td></tr></table></figure>
-
-<h2><span id="references">References</span></h2><ol>
-<li><a target="_blank" rel="noopener" href="https://www.arangodb.com/docs/stable/aql/advanced-array-operators.html#inline-filter">Array operators - Inline filter</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.arangodb.com/docs/stable/aql/functions-string.html#contains">String functions - CONTAINS()</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.arangodb.com/docs/stable/aql/functions-string.html#lower">String functions - LOWER()</a></li>
-</ol>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
   <article id="post-uml-and-openapi-for-full-stack-development" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -686,6 +608,100 @@
 
 
 
+  <article id="post-installing-electron-manually-for-electron-builder" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-08-11T00:00:00.000Z"><a href="/2020/08/11/installing-electron-manually-for-electron-builder/">2020-08-11</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/08/11/installing-electron-manually-for-electron-builder/">Installing Electron manually for electron-builder</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>This article tries to resolve an uncommon issue when you encounter the following error and it cannot be resolved automatically, e.g. behind proxy, etc.:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: Electron failed to install correctly, please delete node_modules/electron and try installing again</span><br></pre></td></tr></table></figure>
+
+<p>Download the right version (with consideration of <code>package.json</code>) of Electron from <a target="_blank" rel="noopener" href="https://github.com/electron/electron/releases">https://github.com/electron/electron/releases</a></p>
+<p>Unpack the downloaded Electron and put all files under <code>node_modules/electron/dist</code>.</p>
+<p>Create <code>path.txt</code> file under <code>node_modules/electron</code> with the following content:</p>
+<ul>
+<li>Windows: <code>electron.exe</code></li>
+<li>Linux: <code>electron</code></li>
+<li>macOS: <code>Electron.app/Contents/MacOS/Electron</code></li>
+</ul>
+<p><em>Note: Make sure there is no whitespace characters (including a newline character) after the filename. This is a problem that I struggled for minutes and hours.</em></p>
+<h2><span id="references">References</span></h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/electron/electron-rebuild/issues/39">spawn dist&#x2F;electron.exe ENOENT #39</a></li>
+</ul>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+  <article id="post-quick-start-on-antlr4-in-rust-part3" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-06-10T00:00:00.000Z"><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3/">2020-06-10</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3/">Quick start on ANTLR4 in Rust - part3</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p><em>This is my note in adopting and learning ANTLR4Rust</em></p>
+<p><strong>Series</strong></p>
+<ul>
+<li><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1">Quick Start on ANTLR4 in Rust — Part1</a></li>
+<li><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2">Quick Start on ANTLR4 in Rust — Part2</a></li>
+<li>Quick Start on ANTLR4 in Rust — Part3 (This article)</li>
+</ul>
+<hr>
+<p>In the previous article, we implemented a parser with internal state variables. However, if a grammar is huge, it is practically impossible to manage a huge number of state variables. Alternatively, a visitor-like approach can be used.</p>
+<p>In an exit method of the root rule in the Listener, we can grab the current context and its children and call custom parser methods:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> <span class="title class_">Listener</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">hdr</span>(&amp;<span class="keyword">self</span>, ctx: &amp;HdrContextAll) <span class="punctuation">-&gt;</span> Row &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">row_ctx</span> = ctx.<span class="title function_ invoke__">row</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">self</span>.<span class="title function_ invoke__">row</span>(&amp;row_ctx)</span><br><span class="line">    &#125;    <span class="keyword">fn</span> <span class="title function_">row</span>(&amp;<span class="keyword">self</span>, ctx: &amp;RowContextAll) <span class="punctuation">-&gt;</span> Row &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">row</span> = Row::<span class="title function_ invoke__">new</span>();</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">field_ctx_list</span> = ctx.<span class="title function_ invoke__">field_all</span>();</span><br><span class="line">        <span class="title function_ invoke__">for</span> (_i, field_ctx) <span class="keyword">in</span> field_ctx_list.<span class="title function_ invoke__">iter</span>().<span class="title function_ invoke__">enumerate</span>() &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">field</span> = <span class="keyword">self</span>.<span class="title function_ invoke__">field</span>(&amp;field_ctx);</span><br><span class="line">            row.<span class="title function_ invoke__">push</span>(field);</span><br><span class="line">        &#125;</span><br><span class="line">        row</span><br><span class="line">    &#125;    <span class="keyword">fn</span> <span class="title function_">field</span>(&amp;<span class="keyword">self</span>, ctx: &amp;FieldContextAll) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">        ctx.<span class="title function_ invoke__">get_text</span>()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">CSVListener</span> <span class="keyword">for</span> <span class="title class_">Listener</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">exit_csvFile</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;CsvFileContext) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">hdr_ctx</span> = ctx.<span class="title function_ invoke__">hdr</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">header</span> = <span class="keyword">self</span>.<span class="title function_ invoke__">hdr</span>(&amp;hdr_ctx);</span><br><span class="line">        <span class="keyword">self</span>.csv.header = header;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">row_ctx_list</span> = ctx.<span class="title function_ invoke__">row_all</span>();</span><br><span class="line">        <span class="title function_ invoke__">for</span> (_i, row_ctx) <span class="keyword">in</span> row_ctx_list.<span class="title function_ invoke__">iter</span>().<span class="title function_ invoke__">enumerate</span>() &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">row</span> = <span class="keyword">self</span>.<span class="title function_ invoke__">row</span>(&amp;row_ctx);</span><br><span class="line">            <span class="keyword">self</span>.csv.rows.<span class="title function_ invoke__">push</span>(row);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/internalstability/antlr4rust_quickstart/commit/541cd68c7587e62263242df5a2998a5e9dff71ce">here</a>.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
 
 <nav id="pagination">
   
@@ -717,8 +733,6 @@
     <li><a href="/tags/amazon/">Amazon</a><small>1</small></li>
   
     <li><a href="/tags/ant-design/">Ant Design</a><small>1</small></li>
-  
-    <li><a href="/tags/arangodb/">ArangoDB</a><small>2</small></li>
   
     <li><a href="/tags/dw1000/">DW1000</a><small>1</small></li>
   
