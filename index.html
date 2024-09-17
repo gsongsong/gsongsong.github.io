@@ -627,64 +627,6 @@
 
 
 
-  <article id="post-modifying-regulations-in-intel-wi-fi-card-eeprom" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2017-04-22T00:00:00.000Z"><a href="/2017/04/22/modifying-regulations-in-intel-wi-fi-card-eeprom/">2017-04-22</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2017/04/22/modifying-regulations-in-intel-wi-fi-card-eeprom/">Modifying regulations in Intel Wi-Fi card EEPROM</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <h2><span id="regulations-in-eeprom">Regulations in EEPROM</span></h2><p>Wi-Fi regulation defines various restirctions such as transmission power, initial radiation, and dynamic frequency switching for Wi-Fi to operate in a certain country. Most OSs including Linux contain regulations in their kernels, and we can bypass them by modifying a regulation file or a kernel.</p>
-<p>However, certain Wi-Fi cards such as Intel’s have their own regulations in their EEPROM, which takes precedence to kernel’s regulations. Here’s how to modify regulations in <a target="_blank" rel="noopener" href="https://wikidevi.com/wiki/Intel_WiFi_Link_5300_(full_size)">Intel Wi-Fi card’s EEPROM</a>. In this article, Intel Ultimate N WiFi Link 5300 is used</p>
-<h2><span id="preparing-a-tool">Preparing a Tool</span></h2><p><a target="_blank" rel="noopener" href="https://github.com/0x90/iwleeprom">iwleeprom</a> is a software to read and write content in an EEPROM. Clone, build and install it:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git <span class="built_in">clone</span> [https://github.com/0x90/iwleeprom](https://github.com/0x90/iwleeprom)</span><br><span class="line">$ <span class="built_in">cd</span> iwleeprom</span><br><span class="line">$ make</span><br><span class="line">$ [sudo] make install</span><br></pre></td></tr></table></figure>
-
-<h2><span id="interpreting-a-regulation-flag">Interpreting a Regulation Flag</span></h2><p>First, let’s have a look at what EEPROM contains. To read regulations in EEPROM, type iwleeprom -s:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ iwleeprom -s</span><br><span class="line">Supported devices detected:</span><br><span class="line">[1] 0000:03:00.0 [RW] Ultimate N WiFi Link 5300 (8086:4236, 8086:1011)</span><br><span class="line">Select device [1-1] (or 0 to quit): 1</span><br><span class="line">Using device 0000:03:00.0 [RW] Ultimate N WiFi Link 5300</span><br><span class="line">No file names given or patch option selected!</span><br><span class="line">No EEPROM actions will be performed, just write-enable <span class="built_in">test</span></span><br><span class="line">Regulatory data from card EEPROM...</span><br><span class="line">Regulatory base: 0156</span><br><span class="line">Channel 1: 0e6f</span><br><span class="line">Channel 2: 0f6f</span><br><span class="line">...</span><br><span class="line">Channel 64: 0f31</span><br><span class="line">...</span><br><span class="line">Channel 1 (HT40): 0a6f</span><br><span class="line">Channel 2 (HT40): 0f6f</span><br><span class="line">...</span><br><span class="line">Channel 157 (HT40): 0f61</span><br></pre></td></tr></table></figure>
-
-<p>What those <code>0e6f</code>, <code>0f31</code> and other things mean? Those are <em>flags</em> defining regulations. So, which bit stands for what? When you are looking into Linux kernel source code, specifically, <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/4bdd4dfe7a893594a75ca324057f7010b1762bd2/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.c#L289-L305"><code>iwlwifi</code> driver</a>, you can see flag definition as below:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * enum iwl_eeprom_channel_flags - channel flags in EEPROM</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_VALID: channel is usable for this SKU/geo</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_IBSS: usable as an IBSS channel</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_ACTIVE: active scanning allowed</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_RADAR: radar detection required</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_WIDE: 20 MHz channel okay (?)</span></span><br><span class="line"><span class="comment"> * @EEPROM_CHANNEL_DFS: dynamic freq selection candidate</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">iwl_eeprom_channel_flags</span> &#123;</span></span><br><span class="line">EEPROM_CHANNEL_VALID = BIT(<span class="number">0</span>),</span><br><span class="line">EEPROM_CHANNEL_IBSS = BIT(<span class="number">1</span>),</span><br><span class="line">EEPROM_CHANNEL_ACTIVE = BIT(<span class="number">3</span>),</span><br><span class="line">EEPROM_CHANNEL_RADAR = BIT(<span class="number">4</span>),</span><br><span class="line">EEPROM_CHANNEL_WIDE = BIT(<span class="number">5</span>),</span><br><span class="line">EEPROM_CHANNEL_DFS = BIT(<span class="number">7</span>),</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>For example, channel 1 has flags <code>0e6f</code>, which is <code>1110 0110 1111</code> in binary. Its interpretation is:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1110 0110 1111</span><br><span class="line">.............1 This channel is valid</span><br><span class="line">............1. Not valid for IBSS</span><br><span class="line">...........1.. (Unknown)</span><br><span class="line">..........1... Active scanning is allowed</span><br><span class="line">........0..... RADAR detection is not required</span><br><span class="line">.......1...... Supports wide band</span><br><span class="line">......1....... Candidate for dynamic frequency selection</span><br></pre></td></tr></table></figure>
-
-<h2><span id="reading-eeprom">Reading EEPROM</span></h2><p>To read and dump EEPROM, type <code>iwleeprom -o &lt;outfile&gt;</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ iwleeprom -b -o eeprom_dump</span><br><span class="line">Supported devices detected:</span><br><span class="line">[1] 0000:03:00.0 [RW] Ultimate N WiFi Link 5300 (8086:4236, 8086:1011)</span><br><span class="line">Select device [1-1] (or 0 to quit): 1</span><br><span class="line">Using device 0000:03:00.0 [RW] Ultimate N WiFi Link 5300</span><br><span class="line">Saving dump with byte order: BIG ENDIAN</span><br><span class="line">0000 [................................................................]</span><br><span class="line">0080 [................................................................]</span><br><span class="line">...</span><br><span class="line">0780 [................................................................]</span><br><span class="line"></span><br><span class="line">EEPROM has been dumped to eeprom_dump</span><br></pre></td></tr></table></figure>
-
-<p>We can view the dumped EEPROM with <code>xxd</code> command or hex mode (<code>:%!xxd</code>) in <code>vim</code>, and can find channel flags. They are written in the same order of channels, but their offsets are not in linear relationships. You can manually locate an offset of each channel:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ vim eeprom_dump</span><br><span class="line">:%!xxd</span><br><span class="line">00000000: 5a40 0050 7000 0410 0030 0000 0280 8086 4236 8086 1011 0d01 Z@.Pp....0......B6.......</span><br><span class="line">...</span><br><span class="line">00000150: ---- ---- ---- ---- ---- ---- ---- --0e 6f0f 6f0f 6f0f 6f0f :.........oM.W...o.o.o.o.</span><br><span class="line">00000168: 6f0f 6f0f 6f0f 6f0f 6f0f 6f0f 6f0f 610f 6100 0000 0000 0000 :o.o.o.o.o.o.o.a.a.......</span><br><span class="line">00000180: 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 :........................</span><br><span class="line">00000198: 0000 000f e100 000f e100 000f e100 000f e10f 310f 310f 310f :..................1.1.1.</span><br><span class="line">000001b0: 3100 000f 310f 310f 310f 310f 310f 310f 310f 310f 310f 310f :1...1.1.1.1.1.1.1.1.1.1.</span><br><span class="line">000001c8: 3100 0000 000f a10f a10f a10f a10f a100 000d 0a6f 0f6f 0f6f :1..................o.o.o</span><br><span class="line">000001e0: 0f6f 0f6f 0f6f 0c6f 0000 0ce1 0fe1 0f31 0d31 0e31 0f31 0f31 :.o.o.o.o.......1.1.1.1.1</span><br><span class="line">000001f8: 0f31 0f31 0f61 0f61 :.1.1.a.a</span><br></pre></td></tr></table></figure>
-
-<h2><span id="modifying-regulations">Modifying Regulations</span></h2><p>It is easy. Open the dumped EEPROM in <code>vim</code> and set to hex mode (<code>:%!xxd</code>). And change the content as you want. To save changes, reert hex mode (<code>:%!xxd -r</code>) and save it (<code>:w</code>)</p>
-<h2><span id="writing-new-regulations-in-eeprom">Writing New Regulations in EEPROM</span></h2><p>After finishing modification, rewrite EEPROM with <code>iwleeprom -m -c -i &lt;infile&gt;</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ iwleeprom -m -c -i eeprom_dump</span><br><span class="line">Supported devices detected:</span><br><span class="line">[1] 0000:03:00.0 [RW] Ultimate N WiFi Link 5300 (8086:4236, 8086:1011)</span><br><span class="line">Select device [1-1] (or 0 to quit): 1</span><br><span class="line">Using device 0000:03:00.0 [RW] Ultimate N WiFi Link 5300</span><br><span class="line">Dump file byte order: BIG ENDIAN</span><br><span class="line">0000 [================================================================]</span><br><span class="line">0080 [================================================================]</span><br><span class="line">...</span><br><span class="line">0780 [================================================================]</span><br><span class="line"></span><br><span class="line">EEPROM has been written from eeprom_dump</span><br></pre></td></tr></table></figure>
-
-<p>Finally, you can check modification is applied via <code>iw phy</code> command</p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
 
 <nav id="pagination">
   
@@ -719,8 +661,6 @@
   
     <li><a href="/tags/evk1000/">EVK1000</a><small>1</small></li>
   
-    <li><a href="/tags/intel/">Intel</a><small>1</small></li>
-  
     <li><a href="/tags/react/">React</a><small>1</small></li>
   
     <li><a href="/tags/rust/">Rust</a><small>3</small></li>
@@ -732,8 +672,6 @@
     <li><a href="/tags/thrift/">Thrift</a><small>1</small></li>
   
     <li><a href="/tags/uwb/">UWB</a><small>2</small></li>
-  
-    <li><a href="/tags/wi-fi/">Wi-Fi</a><small>1</small></li>
   
     <li><a href="/tags/axios/">axios</a><small>1</small></li>
   
