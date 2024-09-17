@@ -52,50 +52,6 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
-  <article id="post-git-hooks-with-stderr" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2020-05-28T00:00:00.000Z"><a href="/2020/05/28/git-hooks-with-stderr/">2020-05-28</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2020/05/28/git-hooks-with-stderr/">Git Hooks with stderr</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>For example, it’s tricky to validate a commit with pre-commit hook if an app does not return a proper exit code. Here’s a way to validate with the stderr.</p>
-<ol>
-<li>Make a temporary file</li>
-<li>Redirect stderr to the temp file</li>
-<li>Count the length of its content</li>
-</ol>
-<p>You can understand it with code snippets below:</p>
-<p><strong>PowerShell</strong></p>
-<figure class="highlight ps"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$errFile</span> = <span class="built_in">New-TemporaryFile</span></span><br><span class="line">command &gt; /dev/null <span class="number">2</span>&gt;<span class="variable">$errFile</span></span><br><span class="line"><span class="variable">$err</span> = <span class="built_in">Get-Content</span> <span class="variable">$errFile</span></span><br><span class="line"><span class="keyword">If</span> (<span class="variable">$err</span>.Length <span class="operator">-ne</span> <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="keyword">Exit</span> <span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">Exit</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>Unix&#x2F;Linux shell</strong></p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">errFile = $(<span class="built_in">mktemp</span>)</span><br><span class="line"><span class="built_in">command</span> &gt; /dev/null 2&gt;<span class="variable">$errFile</span></span><br><span class="line"><span class="variable">$l</span> = <span class="built_in">wc</span> -l <span class="variable">$errFile</span></span><br><span class="line"><span class="keyword">if</span> [<span class="variable">$l</span> -ne 0]; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
   <article id="post-preventing-privacy-leak-with-turingfonts-substitution-cipher" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -600,7 +556,7 @@
   
     <li><a href="/tags/evk1000/">EVK1000</a><small>1</small></li>
   
-    <li><a href="/tags/electron/">Electron</a><small>2</small></li>
+    <li><a href="/tags/electron/">Electron</a><small>1</small></li>
   
     <li><a href="/tags/git/">Git</a><small>1</small></li>
   
