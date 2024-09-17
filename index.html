@@ -52,107 +52,6 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
-  <article id="post-tower-of-hanoi-with-recursion" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2021-10-15T04:36:29.000Z"><a href="/2021/10/15/tower-of-hanoi-with-recursion/">2021-10-15</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2021/10/15/tower-of-hanoi-with-recursion/">Tower of Hanoi with recursion</a></h1>
-  
-
-    </header>
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <h2><span id="problem-statement">Problem statement</span></h2><p>Assume there are 3 towers and \(D\) disks. And all disks are place at the first tower in a descending order in terms of disk number. It can be illustrated as follows:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">     [1]             |              |</span><br><span class="line">    [ 2 ]            |              |</span><br><span class="line">      :              |              |</span><br><span class="line"> [   D-1   ]         |              |</span><br><span class="line">[     D     ]        |              |</span><br><span class="line">-----------------------------------------</span><br><span class="line">    Tower 1        Tower 2        Tower 3</span><br></pre></td></tr></table></figure>
-
-<p>The objective is to find out the order of movement to move the entire disks to another tower with constrains:</p>
-<ul>
-<li>One only disk can be moved at a time</li>
-<li>Disk \(X\) cannot be placed under disk \(Y\), where \(X\) is greater than \(Y\)</li>
-</ul>
-<h2><span id="approach">Approach</span></h2><p>To move disk \(X\) from tower \(A\) to \(C\), three steps as follows:</p>
-<ol>
-<li>Move disks 1 to \(X-1\) from tower \(A\) to \(B\)</li>
-<li>Move disk \(X\) from tower \(A\) to \(C\)</li>
-<li>Move disks 1 to \(X-1\) from tower \(B\) to \(C\)</li>
-</ol>
-<p>Steps (1) and (3) are not a single atomic operation and they can be performed recursively:</p>
-<ol>
-<li>Move disks 1 to \(X-2\) from tower \(A\) to \(C\)</li>
-<li>Move disk \(X-1\) from tower \(A\) to \(B\)</li>
-<li>Move disks 1 to \(X-2\) from tower \(C\) to \(B\)</li>
-</ol>
-<p>If there is only one disk to move, step (1) and step (3) can be skipped.</p>
-<h2><span id="implementation">Implementation</span></h2><p>We can define a function <code>moveDisks()</code> whose inputs are the number of disks to be moved, tower number that the disks are currently located and tower number that the disks to be moved to:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">moveDisks</span><span class="params">(<span class="type">int</span> nDisks, <span class="type">int</span> from, <span class="type">int</span> to)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>It can recursively call the function itself:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">moveDisks</span><span class="params">(<span class="type">int</span> nDisks, <span class="type">int</span> from, <span class="type">int</span> to)</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> intermediate = <span class="number">6</span> - from - to;</span><br><span class="line">  <span class="keyword">if</span> (nDisks &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">moveDisks</span>(nDisks - <span class="number">1</span>, from, intermediate);</span><br><span class="line">  &#125;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Move disk &quot;</span> &lt;&lt; nDisks &lt;&lt; <span class="string">&quot; from tower &quot;</span> &lt;&lt; from &lt;&lt; <span class="string">&quot; to tower &quot;</span> &lt;&lt; to &lt;&lt; endl;</span><br><span class="line">  <span class="keyword">if</span> (nDisks &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">moveDisks</span>(nDisks - <span class="number">1</span>, intermediate, to);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Here <code>int intermediate = 6 - from - to;</code> is a tricky part. This variable represents the number of intermediate tower to move <code>nDisks - 1</code> disks. If each tower is numbered with 1, 2, and 3 then relationships between <code>from</code>, <code>to</code> and <code>intermediate</code> can be determined as follows and the forementioned equation reflects these relationships:</p>
-<table>
-<thead>
-<tr>
-<th>From</th>
-<th>To</th>
-<th>Intermediate</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>2</td>
-<td>3</td>
-</tr>
-<tr>
-<td>1</td>
-<td>3</td>
-<td>2</td>
-</tr>
-<tr>
-<td>2</td>
-<td>1</td>
-<td>3</td>
-</tr>
-<tr>
-<td>2</td>
-<td>3</td>
-<td>2</td>
-</tr>
-<tr>
-<td>3</td>
-<td>1</td>
-<td>2</td>
-</tr>
-<tr>
-<td>3</td>
-<td>2</td>
-<td>3</td>
-</tr>
-</tbody></table>
-<h2><span id="test-result">Test result</span></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">3</span><br><span class="line">Move disk 1 from tower 1 to tower 3</span><br><span class="line">Move disk 2 from tower 1 to tower 2</span><br><span class="line">Move disk 1 from tower 3 to tower 2</span><br><span class="line">Move disk 3 from tower 1 to tower 3</span><br><span class="line">Move disk 1 from tower 2 to tower 1</span><br><span class="line">Move disk 2 from tower 2 to tower 3</span><br><span class="line">Move disk 1 from tower 1 to tower 3</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
   <article id="post-webpack-raw-loader-with-typescript" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -621,6 +520,78 @@
 
 
 
+  <article id="post-quick-start-on-antlr4-in-rust-part1" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-05-29T00:00:00.000Z"><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1/">2020-05-29</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/05/29/quick-start-on-antlr4-in-rust-part1/">Quick start on ANTLR4 in Rust - part1</a></h1>
+  
+
+    </header>
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p><em>This is my note in adopting and learning ANTLR4Rust</em></p>
+<p><strong>Series</strong></p>
+<ul>
+<li>Quick Start on ANTLR4 in Rust — Part1 (This article)</li>
+<li><a href="/2020/06/02/quick-start-on-antlr4-in-rust-part2">Quick Start on ANTLR4 in Rust — Part2</a></li>
+<li><a href="/2020/06/10/quick-start-on-antlr4-in-rust-part3">Quick Start on ANTLR4 in Rust — Part3</a></li>
+</ul>
+<hr>
+<p>Install nightly version of Rust (and make it default if you want for convenience).</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rustup toolchain install nightly</span><br><span class="line">$ rustup default nightly</span><br></pre></td></tr></table></figure>
+
+<p>Get ANTLR4 runtime for Rust from <a target="_blank" rel="noopener" href="https://github.com/rrevenantt/antlr4rust/releases">here</a>:</p>
+<p>Prepare a grammar. I will use an example grammar: <a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/antlr/grammars-v4/master/csv/CSV.g4">https://raw.githubusercontent.com/antlr/grammars-v4/master/csv/CSV.g4</a></p>
+<p>Generate a parser:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar &lt;ANTLR4 runtime path&gt; -Dlanguage=Rust CSV.g4</span><br></pre></td></tr></table></figure>
+
+<p>You will get <code>csvlexer.rs</code>, <code>csvlistener.rs</code> , <code>csvparser.rs</code> . Place them into your project <code>src</code> directory.</p>
+<p>Add dependencies in <code>Cargo.toml</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[dependencies]</span><br><span class="line">lazy_static = &quot;1.4&quot;</span><br><span class="line">antlr-rust = &quot;0.1&quot;</span><br></pre></td></tr></table></figure>
+
+<p>Add a feature and import <code>lazy_static</code> macros to the root module:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#![feature(try_blocks)]</span></span><br><span class="line"><span class="meta">#[macro_use]</span></span><br><span class="line"><span class="keyword">extern</span> crates lazy_static;</span><br></pre></td></tr></table></figure>
+
+<p>Import common and essential things:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> antlr_rust::common_token_stream::CommonTokenStream;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::input_stream::InputStream;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::parser_rule_context::ParserRuleContext;</span><br><span class="line"><span class="keyword">use</span> antlr_rust::tree::&#123;ErrorNode, ParseTreeListener, TerminalNode&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Import grammar-specific things:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mod</span> csvlexer;</span><br><span class="line"><span class="keyword">mod</span> csvlistener;</span><br><span class="line"><span class="keyword">mod</span> csvparser;</span><br><span class="line"><span class="keyword">use</span> csvlexer::CSVLexer;</span><br><span class="line"><span class="keyword">use</span> csvlistener::CSVListener;</span><br><span class="line"><span class="keyword">use</span> csvparser::*;</span><br></pre></td></tr></table></figure>
+
+<p>Implement <code>ParseTreeListener</code>, a supertraint of <code>CSVListener</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Listener</span>;<span class="keyword">impl</span> <span class="title class_">ParseTreeListener</span> <span class="keyword">for</span> <span class="title class_">Listener</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">visit_terminal</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, node: &amp;TerminalNode) &#123;&#125;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">visit_error_node</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, node: &amp;ErrorNode) &#123;&#125;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">enter_every_rule</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;<span class="keyword">dyn</span> ParserRuleContext) &#123;&#125;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">exit_every_rule</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, ctx: &amp;<span class="keyword">dyn</span> ParserRuleContext) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Implement <code>CSVListener</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> <span class="title class_">CSVListener</span> <span class="keyword">for</span> <span class="title class_">Listener</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">enter_csvFile</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">exit_csvFile</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;CsvFileContext) &#123;&#125;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">enter_hdr</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;&#125;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">exit_hdr</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;HdrContext) &#123;&#125;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">enter_row</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;&#125;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">exit_row</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;RowContext) &#123;&#125;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">enter_field</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;&#125;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">exit_field</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, _ctx: &amp;FieldContext) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Read and parse an input. Note that <code>csvFile</code> in the last line is a rule name in <code>CSV.g4</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">input</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(</span><br><span class="line"><span class="string">&quot;This, is, a, header</span></span><br><span class="line"><span class="string">This, is, a, row</span></span><br><span class="line"><span class="string">&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">lexer</span> = CSVLexer::<span class="title function_ invoke__">new</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(InputStream::<span class="title function_ invoke__">new</span>(input)));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">token_source</span> = CommonTokenStream::<span class="title function_ invoke__">new</span>(lexer);</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">parser</span> = CSVParser::<span class="title function_ invoke__">new</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(token_source));</span><br><span class="line">    parser.<span class="title function_ invoke__">add_parse_listener</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(Listener &#123;&#125;));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">result</span> = parser.<span class="title function_ invoke__">csvFile</span>();</span><br><span class="line">    <span class="built_in">assert!</span>(result.<span class="title function_ invoke__">is_ok</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The minimal working example can be found <a target="_blank" rel="noopener" href="https://github.com/internalstability/antlr4rust_quickstart/commit/1a4fb82e23bf9c5a33ed2298ef875f1fee80151f">here</a>.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
 
 <nav id="pagination">
   
@@ -689,8 +660,6 @@
   
     <li><a href="/tags/wi-fi/">Wi-Fi</a><small>1</small></li>
   
-    <li><a href="/tags/algorithm/">algorithm</a><small>1</small></li>
-  
     <li><a href="/tags/axios/">axios</a><small>1</small></li>
   
     <li><a href="/tags/dnd-kit/">dnd kit</a><small>1</small></li>
@@ -703,11 +672,7 @@
   
     <li><a href="/tags/privacy/">privacy</a><small>1</small></li>
   
-    <li><a href="/tags/problem-solving/">problem solving</a><small>1</small></li>
-  
     <li><a href="/tags/proxy/">proxy</a><small>1</small></li>
-  
-    <li><a href="/tags/recursion/">recursion</a><small>1</small></li>
   
     <li><a href="/tags/trilateration/">trilateration</a><small>2</small></li>
   
